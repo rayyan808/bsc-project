@@ -1,4 +1,4 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 
 /* PERSONEL NOTES:
@@ -32,7 +32,7 @@ contract Election {
     uint public candidateBVotes;
     address public admin;
     string public name;
-    string  public owner;
+    address  public owner;
     // Key: Address, Value: Voter 
     //i.e Map a Voter object to ALL addresses
     /* EVM generates getter/setter for public variables,
@@ -46,15 +46,24 @@ contract Election {
     event AnnounceResult(string candidate, uint tallyCount);
     /* Called only when contract is created, contract compiler is the owner */
     constructor(){
-        owner = string(msg.sender);
-        
+        owner = msg.sender; 
     }
-    function conductElection(string memory inputName, string memory candidateA, string memory candidateB) public {
+    modifier ownerPrivilage(){
+        require(msg.sender == owner);
+        _;
+    }
+    /* Vote is invoked by owner
+    All variables are passed as memory as this should remain local to the owners node during execution
+    The owner must input a list of addresses that maintain a right to vote. Later, this input should be replaced
+    with a verification key */
+    function conductElection(string memory inputName, string memory candidateA, string memory candidateB, address[] memory authorizedVoters) public {
         owner = msg.sender;
         name = inputName;
         candidates.push(Candidate(candidateA,0));
         candidates.push(Candidate(candidateB,0));
-        
+        for(uint i = 0; i < authorizedVoters.length; i++){
+            authorize(authorizedVoters[i]);
+        }
     }
      /* Inputs: voteVal, */
      function submitVote(uint voteVal) public {
@@ -73,15 +82,15 @@ contract Election {
    // function proveMembership)
     /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
     / value that affects the summation in submitVote(..)*/
-    function authorize(address citizen){
+    function authorize(address citizen) private {
         require(msg.sender == owner);
         voters[citizen].rights = 1;
         
     }
-    function tallyVotes() public view returns (uint candidateAResult, uint candidateBResult) {
+    function tallyVotes() public {
     	/* @TODO: Add a loop for dynamic candidates*/
-        AnnounceResult(candidates[0].name, candidateAVotes);
-        AnnounceResult(candidates[1].name, candidateBVotes);
+        emit AnnounceResult(candidates[0].name, candidates[0].voteCount);
+        emit AnnounceResult(candidates[1].name, candidates[0].voteCount);
     }
 
 }
