@@ -1,4 +1,4 @@
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
 
 /* PERSONEL NOTES:
@@ -32,7 +32,7 @@ contract Election {
     uint public candidateBVotes;
     address public admin;
     string public name;
-    string  public owner;
+    address public owner;
     // Key: Address, Value: Voter 
     //i.e Map a Voter object to ALL addresses
     /* EVM generates getter/setter for public variables,
@@ -46,8 +46,7 @@ contract Election {
     event AnnounceResult(string candidate, uint tallyCount);
     /* Called only when contract is created, contract compiler is the owner */
     constructor(){
-        owner = string(msg.sender);
-        
+        owner = msg.sender;
     }
     function conductElection(string memory inputName, string memory candidateA, string memory candidateB) public {
         owner = msg.sender;
@@ -73,15 +72,15 @@ contract Election {
    // function proveMembership)
     /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
     / value that affects the summation in submitVote(..)*/
-    function authorize(address citizen){
+    function authorize(address citizen) public {
         require(msg.sender == owner);
         voters[citizen].rights = 1;
         
     }
     function tallyVotes() public view returns (uint candidateAResult, uint candidateBResult) {
     	/* @TODO: Add a loop for dynamic candidates*/
-        AnnounceResult(candidates[0].name, candidateAVotes);
-        AnnounceResult(candidates[1].name, candidateBVotes);
+        emit AnnounceResult(candidates[0].name, candidateAVotes);
+        emit AnnounceResult(candidates[1].name, candidateBVotes);
     }
 
 }

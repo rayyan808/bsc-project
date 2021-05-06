@@ -7,8 +7,8 @@ module.exports = {
        version: "0.8.0" 
      }
     },
-    development: {
-      host: "127.0.0.1",
+    ganache: {
+      host: "localhost",
       port: 7545,
       network_id: "*" // Match any network id
     },
