@@ -28,20 +28,22 @@ contract Election {
         uint rights;
         bool voted;
     }
-    uint public candidateAVotes;
-    uint public candidateBVotes;
-    address public admin;
     string public name;
     address public owner;
     // Key: Address, Value: Voter 
     //i.e Map a Voter object to ALL addresses
-    mapping(address => Voter) public voters;
+    mapping(address => Voter) voters;
     
     Candidate[] public candidates;
     
     uint public terminateElection;
+    /* Everytime a vote is executed, this event is logged onto the block. Currently the voters public address is shown next to the candidate they voted
+    for, in future updates this address will be replaced by a ZKP */
     
+    event AnnounceVote(string candidate, address proofOfMembership);
     event AnnounceResult(string candidate, uint tallyCount);
+    
+    event AnnounceAuth(address authorizedUser);
     /* Called only when contract is created, contract compiler is the owner */
     constructor(){
         owner = msg.sender;
@@ -65,7 +67,8 @@ contract Election {
         //If the voter is authorized, then the vote has a state change
         /* @TODO: Implement Additive Pailler */
         candidates[voteVal].voteCount += voters[msg.sender].rights;
-        
+        /* Emit an event on the block to notify a new vote using candidate who got the votes name and the voters proof of Membership*/
+        emit AnnounceVote(candidates[voteVal].name, msg.sender);
     }
     /*function generateMerkle(){
     }*/
@@ -74,12 +77,13 @@ contract Election {
     function authorize(address citizen) public {
         require(msg.sender == owner);
         voters[citizen].rights = 1;
+        emit AnnounceAuth(msg.sender);
         
     }
     function tallyVotes() public {
     	/* @TODO: Add a loop for dynamic candidates*/
-        emit AnnounceResult(candidates[0].name, candidateAVotes);
-        emit AnnounceResult(candidates[1].name, candidateBVotes);
+        emit AnnounceResult(candidates[0].name, candidates[0].voteCount);
+        emit AnnounceResult(candidates[1].name, candidates[1].voteCount);
     }
 
 }
