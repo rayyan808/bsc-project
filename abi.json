@@ -1,0 +1,24 @@
+{
+  "inputs": [
+    {
+      "name": "secretKey",
+      "public": false,
+      "type": "field"
+    },
+    {
+      "name": "siblingNodeA",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "siblingNodeB",
+      "public": true,
+      "type": "field"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "bool"
+    }
+  ]
+}

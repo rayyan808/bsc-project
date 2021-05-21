@@ -1,28 +1,51 @@
-import "hashes/pedersen/512bit" as hash
-import "ecc/edwardsCompress" as edwardsCompress
-import "ecc/babyjubjubParams" as context
-from "ecc/babyjubjubParams" import BabyJubJubParams
+//from "hashes/mimc7/mimc7R10" import main as hash
+import "./customSponge" as hash
 import "hashes/utils/256bitsDirectionHelper" as multiplex
 
 // Merke-Tree inclusion proof for tree depth 3 using SNARK efficient pedersen hashes
-// directionSelector=> true if current digest is on the rhs of the hash
+// directionSelector => TRUE if current digest is on the rhs of the hash
+/*
+DApp Function for COMPUTING WITNESS
+array[] merkleArray;
 
-def main(u32[8] rootNode, private u32[8] personalLeaf, private bool[3] directionSelector, u32[8] siblingNode0, private u32[8] siblingNode1, private u32[8] siblingNode2):
-	BabyJubJubParams context = context()
 
-	//Setup
-	u32[8] currentNode = personalLeaf
-	
-	/* Loop up the tree, multiplexing sibling nodes = producing the parent hash value  */
-	u32[16] preimage = multiplex(directionSelector[0], currentNode, siblingNode0)
-	currentNode = hash(preimage)
+listOfNodes, rootNode, provingKey = Election.deployed().then(function(instance) { instance.getMerkleInfo(voteKey) } );
+value = oneWayHash(secretKey);
+if(index mod 2 == 0) : The index is on the left node
+{
+	value = hash(value, merkleArray[index+1]);
+} else {
+	value = hash(merkleArray[index-1], value);
+}
+index div 2 Drop a layer 
 
-	preimage = multiplex(directionSelector[1], currentNode, siblingNode1)
-	currentNode = hash(preimage)
 
-	preimage = multiplex(directionSelector[2], currentNode, siblingNode2)
-	currentNode = hash(preimage)
 
-	assert(rootNode == currentNode)
+SPONGE TAKES A FIELD ARRAY OF TWO VALUES AS INPUT, SO FOR THE INPUT SECRETKEY, SECRETKEY IS PAIRED WITH 0 TO PERFORM INITIAL HASH
 
-	return
+
+/* A node is represented as a number defined over a large 'field';*/	
+
+const field k = 10;
+def main(field private secretKey, field merkleRoot, private bool[3] directionSelector, field[30] siblingNodes):
+/* INPUT: 
+PRIVATE Users Secret Key
+PUBLIC Merkle Root,
+PRIVATE directionSelecter Array containing boolean values to determine hashing order. T = Right, F = Left
+PUBLIC siblingNodes Array is of size treeDepth - 1*/
+
+    field currentNode = hash([secretKey,0], k); //Pair hash the secretKey with a static value, select k = 10 (k iterations of Feistel will take place)
+    for(field i =0; i < siblingNodes.length; i++){
+        if(directionSelector[i] == true){
+         /* The currentNodes index is a right child*/
+            currentNode = hash([siblingNodes[i],currentNode], k);
+        } else {
+        /* The currentNodes index is a left child*/
+            
+            currentNode = hash([currentNode, siblingNodes[i]], k);
+        }
+    }
+    assert(merkleRoot == currentNode);
+    return
+    
+

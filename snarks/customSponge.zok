@@ -1,0 +1,26 @@
+import "./mimcFeistel" as MiMCFeistel
+/* Taken from Zokrates Standard Library, modified to operate as a 2:1 Hash Function, only the first output block is returned */
+/* IMPORTANT NOTE TO SELF: Zokrates followes 1-indexing, which is very annoying. Keep this in mind when you're analyzing the Feistel loop/ROUNDS */
+const field k = 10
+def main(field alpha, field beta) -> field:
+	field[2] ins = [alpha, beta]
+	//nInputs = 2, nOutputs = 3,
+	u32 nInputs = 2
+	u32 nOutputs = 1 
+	field[4][2] S = [[0; 2]; 4] // Dim: (nInputs + nOutputs - 1, 2)
+	//field[3] outs = [0; 3]
+    field outs = 0
+	for u32 i in 0..nInputs do
+		u32 idx = if i == 0 then 0 else i - 1 fi
+		S[i] = if i == 0 then MiMCFeistel(ins[0], 0, k) else MiMCFeistel(S[idx][0] + ins[i], S[idx][1], k) fi
+	endfor
+	outs = S[nInputs - 1][0]
+	//outs[0] = S[nInputs - 1][0]
+    /*
+	for field i in 0..(nOutputs - 1) do
+		field[2] feistelRes = MiMCFeistel(S[nInputs + i - 1][0], S[nInputs + i - 1][1], k)
+		S[nInputs + i] = feistelRes
+		outs[i + 1] = S[nInputs + i][0]
+	endfor */
+
+	return outs

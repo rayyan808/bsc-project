@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "name": "alpha",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "beta",
+      "public": true,
+      "type": "field"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "field"
+    }
+  ]
+}

@@ -1,14 +1,15 @@
-import "hashes/pedersen/512bit" as hash
-import "ecc/edwardsCompress" as edwardsCompress
-import "ecc/babyjubjubParams" as context
-from "ecc/babyjubjubParams" import BabyJubJubParams
-import "hashes/utils/256bitsDirectionHelper" as multiplex
+from "hashes/mimc7/mimc7R10" import main as hash;
+import "hashes/utils/256bitsDirectionHelper" as multiplex;
 
-// Merke-Tree inclusion proof for tree depth 3 using SNARK efficient pedersen hashes
+/* Custom-made SNARK-circuit for Merkle Tree Proof-of-Inclusion 
+Utilizes MiMC Sponge Hash function to generate a proof*/
 // directionSelector=> true if current digest is on the rhs of the hash
 
+/* For a tree of Depth 3, 3 sibling nodes are needed. 
+This Function verifies a path from a personalLeaf to the rootNode*/
+
+
 def main(u32[8] rootNode, private u32[8] personalLeaf, private bool[3] directionSelector, u32[8] siblingNode0, private u32[8] siblingNode1, private u32[8] siblingNode2):
-	BabyJubJubParams context = context()
 
 	//Setup
 	u32[8] currentNode = personalLeaf
@@ -26,3 +27,5 @@ def main(u32[8] rootNode, private u32[8] personalLeaf, private bool[3] direction
 	assert(rootNode == currentNode)
 
 	return
+
+
