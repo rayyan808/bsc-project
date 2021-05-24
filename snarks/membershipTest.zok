@@ -24,15 +24,20 @@ index div 2 Drop a layer
 SPONGE TAKES A FIELD ARRAY OF TWO VALUES AS INPUT, SO FOR THE INPUT SECRETKEY, SECRETKEY IS PAIRED WITH 0 TO PERFORM INITIAL HASH
 
 
-/* A node is represented as a number defined over a large 'field';*/	
-
-const field k = 10;
-def main(field private secretKey, field merkleRoot, private bool[3] directionSelector, field[30] siblingNodes):
-/* INPUT: 
+ A node is represented as a number defined over a large 'field'; 
+ 
+INPUT: 
 PRIVATE Users Secret Key
 PUBLIC Merkle Root,
 PRIVATE directionSelecter Array containing boolean values to determine hashing order. T = Right, F = Left
-PUBLIC siblingNodes Array is of size treeDepth - 1*/
+PUBLIC siblingNodes Array is of size treeDepth - 1
+
+*/	
+
+
+
+def main(field private secretKey, field merkleRoot, private bool[3] directionSelector, field[30] siblingNodes):
+
 
     field currentNode = hash([secretKey,0], k); //Pair hash the secretKey with a static value, select k = 10 (k iterations of Feistel will take place)
     for(field i =0; i < siblingNodes.length; i++){

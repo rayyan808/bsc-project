@@ -1,19 +1,15 @@
 {
   "inputs": [
     {
-      "name": "alpha",
-      "public": true,
+      "name": "secretKey",
+      "public": false,
       "type": "field"
     },
     {
-      "name": "beta",
+      "name": "hashV",
       "public": true,
       "type": "field"
     }
   ],
-  "outputs": [
-    {
-      "type": "field"
-    }
-  ]
+  "outputs": []
 }

@@ -1,7 +1,7 @@
 import "./mimcFeistel" as MiMCFeistel
 /* Taken from Zokrates Standard Library, modified to operate as a 2:1 Hash Function, only the first output block is returned */
 /* IMPORTANT NOTE TO SELF: Zokrates followes 1-indexing, which is very annoying. Keep this in mind when you're analyzing the Feistel loop/ROUNDS */
-const field k = 10
+const field k = 220
 def main(field alpha, field beta) -> field:
 	field[2] ins = [alpha, beta]
 	//nInputs = 2, nOutputs = 3,

@@ -1,0 +1,12 @@
+//import "./customSponge" as hash
+import "./mimcFeistel" as hash
+import "hashes/utils/256bitsDirectionHelper" as multiplex
+
+const field k = 10
+/* 1337 => 11774135982312318218690913815982064475554785129562069473428288815955169655349 */
+/* 1337 (Solidity Implementation) => 3660059504047753383613051176787340202860542808713942029782338008813492019380 */
+def main(private field secretKey, field hashV):
+field dummy = 0
+    field hashedVal = hash(secretKey, dummy)
+    assert(hashedVal == hashV)
+    return 

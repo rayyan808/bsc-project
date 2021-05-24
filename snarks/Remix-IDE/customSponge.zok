@@ -1,9 +1,12 @@
 import "./mimcFeistel" as MiMCFeistel
 /* Taken from Zokrates Standard Library, modified to operate as a 2:1 Hash Function, only the first output block is returned */
-def main(field[2] ins, field k) -> field:
+
+def main(field alpha, field beta) -> field:
+    field k = 10
 	//nInputs = 2, nOutputs = 3,
 	field nInputs = 2
 	field nOutputs = 1 
+	field[2] ins = [alpha,beta]
 	field[4][2] S = [[0; 2]; 4] // Dim: (nInputs + nOutputs - 1, 2)
 	//field[3] outs = [0; 3]
     field outs = 0

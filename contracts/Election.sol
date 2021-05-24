@@ -18,12 +18,12 @@ User Inputs into Proof Generation => Private secretKey
 
 Owner Inputs => Self generated Secret Key and Public Key, and Verification Key
 When contract is deployed, the state change is appended onto the blockchain. */
-struct MerkleTree {
+/*struct MerkleTree {
     string value;
     MerkleTree left;
     MerkleTree right;
-    computeHash()
-}
+
+}*/
 
 
 contract Election {
@@ -33,14 +33,14 @@ contract Election {
     }
     /* Each address in Address Space is mapped to an empty Voter struct with default values */
     struct Voter {
-        uint value = 0;
-        uint authorized = false;
-        bool voted = false;
-        bool submittedVoteKey = false;
+        uint value; //Default value is 0 
+        bool authorized; 
+        bool voted;//Default value is false
+        bool submittedVoteKey;
     }
     struct VoteKey {
         string value;
-        bool modified = false;
+        bool modified;
     }
     string public name;
     address public owner;
@@ -70,13 +70,14 @@ contract Election {
         owner = msg.sender;
     }
     /* When a potential voter wishes to generate a proof, they required their index in the Merkle Tree aswell as the Merkle Root*/
-    function getMerkleInfo(string memory voteKey) public returns() {
-        
+ /*   function getMerkleInfo(string memory voteKey) public returns() {
+
     }
-    function createMerkleArray private(bytes32[] inputLayer){
+    
+    function createMerkleArray() private (bytes32[] inputLayer){
         bytes32 leaf;
         bytes32[] merkleArray;
-        /* For each pair of 2 elements, compute the hash and push to the merkleArray */
+        /* For each pair of 2 elements, compute the hash and push to the merkleArray 
         for(uint i =0; i < voteKeyArray.length; i+=2){
             leaf = sha256(voteKeyArray[i], voteKeyArray[i+1]);
             merkleArray.push(leaf);
@@ -86,9 +87,9 @@ contract Election {
     /* Use Case (DApp)
     When a user inputs a secret key (SK) and clicks the 'Join Vote' button,
     the DApp hashes the secret key [VoteKey = H(SK)] locally and invokes pushVoteKey(VoteKey)*/
-    function pushVoteKey(string voteKey) public {
+    function pushVoteKey(string memory voteKey) public {
         /* check double-vote and if votekey generation stage is active*/
-        require(currentState == "VOTEKEY-GENERATION");
+       // require(currentState == "VOTEKEY-GENERATION");
         /* Make sure the voter has been authorized and that they haven't already generated a key*/
         require(voters[msg.sender].authorized == true && voters[msg.sender].submittedVoteKey == false);
         /* Mapping Implementation */
@@ -99,7 +100,7 @@ contract Election {
         activeVoters++;
         /* Check if our voter count exceeded or reached a power of 2*/
         if(activeVoters >= 2) { 
-            generateMerkleTree(); 
+          //  generateMerkleTree(); 
             }
     }   
     function conductElection(string memory inputName, uint8 treeDepth, string memory candidateA, string  memory candidateB) public  {
@@ -114,34 +115,34 @@ contract Election {
      /* Inputs: voteVal, Proof of Membership */
      function submitVote(uint voteVal) public {
          /*Verify if Voting process is active*/
-         require(currentState == "VOTE");
+        // require(currentState == "VOTE");
     	/* Verify Voter rights and if they have voted previouslys*/
-        require(voters[msg.sender].authorized == 1);
+        require(voters[msg.sender].authorized == true);
         require(voters[msg.sender].voted == false);
         /* Invoke the Verifier contract with Proof of Membership as input */
             //Assign Vote Value to the voter
             voters[msg.sender].value = voteVal;
             //If the voter is authorized, then the vote has a state change
             /* @TODO: Implement Additive Pailler */
-            candidates[voteVal].voteCount += voters[msg.sender].rights;
+          //  candidates[voteVal].voteCount += voters[msg.sender].rights;
             /* Emit an event on the block to notify a new vote using candidate who got the votes name and the voters proof of Membership*/
             emit AnnounceVote(candidates[voteVal].name, msg.sender);
             activeVoters--;
             if(activeVoters == 0){ currentState = "END"; }
         
-    }
-    function generateMerkle() private {
+    } 
+   // function generateMerkle() private {
         /* We already have the H1 of each secretKey as a VoteKey 
         Now, we must take pairs and hash with eachother*/
-        for(uint i =0; i < voteKeyArray.length; i++){
+        //for(uint i =0; i < voteKeyArray.length; i++){
             
-        }
-    }
+       // }
+   // } 
     /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
     / value that affects the summation in submitVote(..)*/
     function authorize(address citizen) public {
         require(msg.sender == owner);
-        voters[citizen].rights = 1;
+        voters[citizen].authorized = true;
         calculateVoteWeight(citizen);
         emit AnnounceAuth(msg.sender);
         
