@@ -39,7 +39,7 @@ contract Election {
         bool submittedVoteKey;
     }
     struct VoteKey {
-        string value;
+        uint256 value;
         bool modified;
     }
     string public name;
@@ -51,9 +51,11 @@ contract Election {
     mapping(address => Voter) voters;
     mapping(address => VoteKey) voteKeys;
 
-    VoteKey[] voteKeyArray;
+    VoteKey[] internal voteKeyArray;
+    uint256[]  public  merkleArray;
     Candidate[] public candidates;
     
+
     uint public terminateElection;
     /* Everytime the stage transitions, an announcement is made to all suscribers.
     STATES: VOTEKEY-GENERATION => VOTE => END */
@@ -73,21 +75,49 @@ contract Election {
     /* When a potential voter wishes to generate a proof, they required their index in the Merkle Tree aswell as the Merkle Root*/
  /*   function getMerkleInfo(string memory voteKey) public returns() {
 
-    }
-    
-    function createMerkleArray() private (bytes32[] inputLayer){
-        bytes32 leaf;
-        bytes32[] merkleArray;
-        /* For each pair of 2 elements, compute the hash and push to the merkleArray 
-        for(uint i =0; i < voteKeyArray.length; i+=2){
-            leaf = sha256(voteKeyArray[i], voteKeyArray[i+1]);
-            merkleArray.push(leaf);
+    } */
+    /* Once the VOTEKEY-GENERATION period has expired, this function is called to produce a Merkle Tree.
+    There should be a Nth power of 2 length of valid vote keys, if such a case does not exist dummy values are pumped. */
+    function createMerkleArray() private {
+        /* Guarantee that a valid merkle tree can be constructed with the given nodes*/
+        assert(voteKeyArray.length >= 2);
+        uint pow = 1; bool isPowerOf2 = false;
+        /* Find the power of 2 closest or equal to the length, if equal do nothing */
+        while(pow <= voteKeyArray.length){ if(pow == voteKeyArray.length) { isPowerOf2 = true; break; } else { pow = pow *2; } }
+        /* If index isn't a power of two, we pump it with static public vote keys */
+        while(pow != voteKeyArray.length && isPowerOf2 == false){ voteKeyArray.push((VoteKey(1337, true))); pow--; }
+        /* For each voteKey struct present, transfer the hashed value into the Merkle Array */
+        for(uint i =0; i < voteKeyArray.length; i++){
+            //leaf = MiMC.MiMC_Hash([voteKeyArray[i],voteKeyArray[i+1]]);
+            merkleArray.push(voteKeyArray[i].value);
         }
+        uint nodeCount=0;
+        uint n = voteKeyArray.length;
+        /* While there are still nodes to traverse*/
+          while (n > 0) {
+            /* Each iteration covers one layer of the tree. Starting with the original voteKey values */
+            for (uint offset = 0; offset < n - 1; offset+=2) {
+                /* Pair-hash neighbouring nodes and move forward by two steps*/
+                uint256[] memory x;
+                /* Transfer values from the appropiate index (nodes already covered + offset)*/
+                x[0] = merkleArray[nodeCount + offset];
+                x[1] = merkleArray[nodeCount + offset + 1];
+                /* Combine both nodes using MiMC Hash and push to the array as a Parent*/
+                merkleArray.push(MiMC.MiMC_Hash(x));
+            }
+            /* Add the count of this new layer to our total node count*/
+            nodeCount += n;
+            /* Div2 will get us to the next layer count, due to the nice properties of Binary Trees and Powers of 2 we can just div*/
+            n = n / 2;
+        }
+        /* merkleArray now contains all nodes, ordered by indexing of layer size. i.e 8 voteKeys => index [0..7], 4 parent nodes produced => index [8..11], 2 nodes produced => index [12..13], Merkle Root => index [14]*/
+        currentState = "VOTING-OPEN";
+        emit AnnounceNewStage(currentState); 
     }
     /* Use Case (DApp)
     When a user inputs a secret key (SK) and clicks the 'Join Vote' button,
     SK is locally hashed using MiMC before being sent as a VOTE KEY*/
-    function pushVoteKey(string memory voteKey) public {
+    function pushVoteKey(uint256 voteKey) public {
         /* check double-vote and if votekey generation stage is active*/
        // require(currentState == "VOTEKEY-GENERATION");
         /* Make sure the voter has been authorized and that they haven't already generated a key*/
@@ -111,11 +141,12 @@ contract Election {
         candidates.push(Candidate(candidateA,0));
         candidates.push(Candidate(candidateB,0));
         currentState = "VOTEKEY-GENERATION";
+        emit AnnounceNewStage(currentState);
     }
      /* Inputs: voteVal, Proof of Membership */
      function submitVote(uint voteVal) public {
          /*Verify if Voting process is active*/
-        // require(currentState == "VOTE");
+        //require(currentState == "VOTING-OPEN");
     	/* Verify Voter rights and if they have voted previouslys*/
         require(voters[msg.sender].authorized == true);
         require(voters[msg.sender].voted == false);
