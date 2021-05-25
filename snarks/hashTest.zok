@@ -1,12 +1,21 @@
-//import "./customSponge" as hash
-import "./mimcFeistel" as hash
-import "hashes/utils/256bitsDirectionHelper" as multiplex
-
-const field k = 10
-/* 1337 => 11774135982312318218690913815982064475554785129562069473428288815955169655349 */
-/* 1337 (Solidity Implementation) => 3660059504047753383613051176787340202860542808713942029782338008813492019380 */
-def main(private field secretKey, field hashV):
-field dummy = 0
-    field hashedVal = hash(secretKey, dummy)
+import "./mimc-hash" as hash
+def main(private field alpha, private field beta, field hashV):
+    field hashedVal = hash([alpha, beta])
     assert(hashedVal == hashV)
     return 
+
+
+    /* 
+
+    <============ TEST INPUTS ========>
+
+    SNARK CIRCUIT
+    input: 1337 0
+    expected output: 279068567919286272405494692370356718356607598444672844562570709048854917873
+    
+    SOLIDITY/EVM
+    input: [1337, 0]
+    result: 279068567919286272405494692370356718356607598444672844562570709048854917873
+    
+
+    */

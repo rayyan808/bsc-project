@@ -1,0 +1,40 @@
+
+import "./mimc-constants.zok" as constants
+
+def main(field x, field k)->(field):
+  field[91] c = constants()
+  for u32 i in 0..91 do
+    field t = x + c[i] + k //mulmod(t,t,prime)
+    x = t**7 // t^7 because 7th power is bijective in this field
+  endfor
+  return x + k
+
+  /* 
+  """
+The MiMC cipher: https://eprint.iacr.org/2016/492
+ First round
+            x    k
+            |    |
+            |    |
+           (+)---|     X[0] = x + k
+            |    |
+    C[0] --(+)   |     Y[0] = X[0] + C[0]
+            |    |
+          (n^7)  |     Z[0] = Y[0]^7
+            |    |
+*****************************************
+ per-round  |    |
+            |    |
+           (+)---|     X[i] = Z[i-1] + k
+            |    |
+    C[i] --(+)   |     Y[i] = X[i] + C[i]
+            |    |
+          (n^7)  |     Z[i] = Y[i]^7
+            |    |
+*****************************************
+ Last round
+            |    |
+           (+)---'     result = Z.back() + k
+            |
+          result
+*/

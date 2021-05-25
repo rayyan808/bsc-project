@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-
+import "../contracts/MiMC.sol";
 /* PERSONEL NOTES:
 Each invokation will cost Gas (measured in computational steps), the transaction
 of incrementing a candidate vote and losing right to vote (again) is
@@ -65,6 +65,7 @@ contract Election {
     event AnnounceResult(string candidate, uint tallyCount);
     /* Create an Event each time the owner authorizes a voter */
     event AnnounceAuth(address authorizedUser);
+    event Debug(uint256 s);
     /* Called only when contract is created, contract compiler is the owner */
     constructor(){
         owner = msg.sender;
@@ -83,10 +84,9 @@ contract Election {
             merkleArray.push(leaf);
         }
     }
-    function pairHash()
     /* Use Case (DApp)
     When a user inputs a secret key (SK) and clicks the 'Join Vote' button,
-    the DApp hashes the secret key [VoteKey = H(SK)] locally and invokes pushVoteKey(VoteKey)*/
+    SK is locally hashed using MiMC before being sent as a VOTE KEY*/
     function pushVoteKey(string memory voteKey) public {
         /* check double-vote and if votekey generation stage is active*/
        // require(currentState == "VOTEKEY-GENERATION");
@@ -157,5 +157,10 @@ contract Election {
     function calculateVoteWeight(address citizen) private {
         /* (TEMPORARY) HARD-CODED VALUE OF 1 */
         voters[citizen].value = 1;
+    }
+    function testHash(uint256[] memory alpha) public pure returns(uint256) {
+        uint256 hashed = MiMC.MiMC_Hash(alpha);
+       // emit Debug(hashed);
+        return hashed;
     }
 }

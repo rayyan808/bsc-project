@@ -1,7 +1,12 @@
 {
   "inputs": [
     {
-      "name": "secretKey",
+      "name": "alpha",
+      "public": false,
+      "type": "field"
+    },
+    {
+      "name": "beta",
       "public": false,
       "type": "field"
     },

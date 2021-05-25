@@ -1,4 +1,9 @@
+/**************************** CLIENT-SIDE ************************************************/
+
+
 const { initialize } = require('zokrates-js/node');
+/****************** DEBUG *********************/
+const SECRET_KEY = 1337;
 
 const Web3 = require('web3');
 var Election = artifacts.require("Election");
@@ -13,13 +18,22 @@ const web3 = new Web3('http://localhost:7545');
 
 /** ZOKRATES-JS**/
 initialize().then((zokratesProvider) => {
-    const source = "def main(private field a) -> field: return a * a";
+    /* Sy chronously read the file before execution persists*/
+    var fs = require('fs');
+
+    try {
+        var data = fs.readFileSync('/snarks/hashTest.zok', 'utf8');
+        console.log("Zokrates file read. \n");    
+    } catch(e) {
+        console.log('Error:', e.stack);
+    }
 
     // compilation
-    const artifacts = zokratesProvider.compile(source);
+    const artifacts = zokratesProvider.compile(data);
 
     // computation
-    const { witness, output } = zokratesProvider.computeWitness(artifacts, ["2"]);
+    /* Test witness using SECRETKEY*/
+    const { witness, output } = zokratesProvider.computeWitness(artifacts, ["1337", "0"]);
 
     // run setup
     const keypair = zokratesProvider.setup(artifacts.program);
@@ -28,7 +42,7 @@ initialize().then((zokratesProvider) => {
     const proof = zokratesProvider.generateProof(artifacts.program, witness, keypair.pk);
 
     // export solidity verifier
-    const verifier = zokratesProvider.exportSolidityVerifier(keypair.vk, "v1");
+    //const verifier = zokratesProvider.exportSolidityVerifier(keypair.vk, "v1");
 });
 
 

@@ -1,8 +1,0 @@
-import "./customSponge" as hash
-import "hashes/utils/256bitsDirectionHelper" as multiplex
-
-
-
-def main(private field secretKey) -> (field):
-    field hashedVal = hash(secretKey, 0)
-    return hashedVal
