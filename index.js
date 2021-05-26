@@ -1,7 +1,6 @@
 /**************************** CLIENT-SIDE ************************************************/
 
-
-const { initialize } = require('zokrates-js/node');
+import { initialize } from 'zokrates-js';
 /****************** DEBUG *********************/
 const SECRET_KEY = 1337;
 
@@ -20,16 +19,15 @@ const web3 = new Web3('http://localhost:7545');
 initialize().then((zokratesProvider) => {
     /* Sy chronously read the file before execution persists*/
     var fs = require('fs');
-
+    const program;
     try {
-        var data = fs.readFileSync('/snarks/hashTest.zok', 'utf8');
-        console.log("Zokrates file read. \n");    
+        program = (fs.readFileSync('./snarks/client-side/membershipTest_Binary'));
+        console.log("Binary read successfully.\n");    
     } catch(e) {
         console.log('Error:', e.stack);
     }
 
-    // compilation
-    const artifacts = zokratesProvider.compile(data);
+
 
     // computation
     /* Test witness using SECRETKEY*/

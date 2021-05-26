@@ -1,22 +1,26 @@
 {
-  "name": "pet-shop",
+  "name": "voting-Dapp",
   "version": "1.0.0",
-  "description": "",
-  "main": "truffle.js",
-  "directories": {
-    "test": "test"
-  },
+  "description": "Secure e-voting via Blockchain and Zero-Knowledge Proof",
+  "main": "index.js",
   "scripts": {
+    "app": "node index.js",
     "dev": "lite-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "directories": {
+    "test": "test"
+  },
+  "author": "Rayyan Jafri",
   "license": "ISC",
   "devDependencies": {
-    "lite-server": "^2.3.0"
+    "lite-server": "^2.3.0",
+    "webpack": "^5.37.1",
+    "webpack-cli": "^4.7.0"
   },
   "dependencies": {
     "solc": "^0.8.0",
+    "web3": "^1.3.6",
     "zokrates-js": "^1.0.32"
   }
 }

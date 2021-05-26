@@ -4,17 +4,16 @@ App = {
 
   init: async function() {
     // Load pets.
-    $.getJSON('../pets.json', function(data) {
+    $.getJSON('../candidates.json', function(data) {
       var petsRow = $('#petsRow');
       var petTemplate = $('#petTemplate');
 
       for (i = 0; i < data.length; i ++) {
         petTemplate.find('.panel-title').text(data[i].name);
         petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-breed').text(data[i].breed);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-location').text(data[i].location);
-        petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
+        petTemplate.find('.candidate-amount').text(data[i].amount + " Tokens");
+        petTemplate.find('.candidate-address').text(data[i].address);
+        petTemplate.find('.candidate-id').text(data[i].id);
 
         petsRow.append(petTemplate.html());
       }
@@ -40,7 +39,7 @@ App = {
   },
 
   bindEvents: function() {
-    $(document).on('click', '.btn-adopt', App.handleAdopt);
+    $(document).on('click', '.btn-vote', App.handleVote);
   },
 
   markAdopted: function() {
@@ -49,10 +48,10 @@ App = {
      */
   },
 
-  handleAdopt: function(event) {
+  handleVote: function(event) {
     event.preventDefault();
 
-    var petId = parseInt($(event.target).data('id'));
+    var candidateID = parseInt($(event.target).data('id'));
 
     /*
      * Replace me...
