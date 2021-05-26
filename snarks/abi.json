@@ -1,19 +1,32 @@
 {
   "inputs": [
     {
-      "name": "alpha",
+      "name": "secretKey",
       "public": false,
       "type": "field"
     },
     {
-      "name": "beta",
-      "public": false,
-      "type": "field"
-    },
-    {
-      "name": "hashV",
+      "name": "merkleRoot",
       "public": true,
       "type": "field"
+    },
+    {
+      "name": "directionSelector",
+      "public": false,
+      "type": "array",
+      "components": {
+        "size": 2,
+        "type": "bool"
+      }
+    },
+    {
+      "name": "siblingNodes",
+      "public": true,
+      "type": "array",
+      "components": {
+        "size": 2,
+        "type": "field"
+      }
     }
   ],
   "outputs": []
