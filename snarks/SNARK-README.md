@@ -1,5 +1,1 @@
-Zokrates is still in beta phase, due to this I had to seperate the circuits according to where you choose to compile.
-Zokrates on Remix-IDE, which I was initially using, requires field type variables in loops
-Zokrates-CLI requires u32 type variables in loops.
-
-This causes issues when compiling, so for clarity they have be seperated.
+Client-side contains the compiled binary program of the SNARK circuit, a proving key and ABI specifications which can be used to generate a proof. The input format to this proof can be read via the ABI specification file "abi.json" to allow the user to generate the proof themselves (if they do not trust the implementation provided in the DApp using zokrates-js)

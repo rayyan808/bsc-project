@@ -1,7 +1,0 @@
-// This is an example from https://zokrates.github.io/gettingstarted.html
-import "hashes/mimcSponge/mimcSponge" as mimcSponge
-
-/* MiMC Sponge takes two arguments and a round function parameter/security level?*/
-def main(private field secretKey, field siblingNodeA, field siblingNodeB) -> (bool):
-	bool result = if mimcSponge([secretKey,siblingNodeA],3) == [siblingNodeB,siblingNodeB,siblingNodeB] then true else false fi
-	return result
