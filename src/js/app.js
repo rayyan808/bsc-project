@@ -26,7 +26,7 @@ App = {
     /*
      * Replace me...
      */
-
+    
     return App.initContract();
   },
 
@@ -52,7 +52,7 @@ App = {
     event.preventDefault();
 
     var candidateID = parseInt($(event.target).data('id'));
-
+    
     /*
      * Replace me...
      */
