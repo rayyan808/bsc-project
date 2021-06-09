@@ -5,6 +5,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     entry: './index.js',
     mode: 'development',
+    externals : {
+        "fs" : "require('fs')"
+    },
     module: {
         rules: [
             {

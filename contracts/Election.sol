@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import "../contracts/MiMC.sol";
+import "./MiMC.sol";
 /* PERSONEL NOTES:
 Each invokation will cost Gas (measured in computational steps), the transaction
 of incrementing a candidate vote and losing right to vote (again) is

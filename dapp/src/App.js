@@ -1,14 +1,15 @@
 import './assets/css/Login-Form-Dark.css';
 import './assets/css/styles.css';
 import {Component} from 'react';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import {useRoutes} from './routes';
+import { BrowserRouter, Link, Switch, Route, Router} from 'react-router-dom';
+import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
 //import {useState, setState} from 'react';
-import {Election, web3} from './components/web3_utility';
+import {Election, Accounts, web3} from './components/web3_utility';
+import {iniZokrates, zkProvider} from './components/zkProvider';
 const Abi = require ('./assets/contracts/electionAbi.json');
 //const { initialize } = require('zokrates-js');
-let Accounts;
 class App extends Component {
-  
   constructor(props){
     super(props);
     this.state = {
@@ -18,14 +19,15 @@ class App extends Component {
       };
       this.handleChange = this.handleChange.bind(this);
       this.conductElection = this.conductElection.bind(this);
-  }
+      //this.useRoutes = this.useRoutes.bind(this);
+    }
   async iniDApp() 
   {
-    try {
+    /*try {
       Accounts = await web3.eth.getAccounts();
      } catch(err){
        console.log("Error initializing Accounts");
-     }/*
+     }
      try {
        console.log(ElectionAbi);
       Election = new web3.eth.Contract(Abi,ELECTION_ADDRESS);
@@ -46,7 +48,7 @@ class App extends Component {
     };
    conductElection = async (e) => {
     e.preventDefault();
-    await this.iniDApp();
+    //await this.iniDApp();
     console.log("Sending request to Blockchain network \n");
     
     console.log(this.state.electionName +  "\n");
@@ -57,8 +59,9 @@ class App extends Component {
       console.log("End of Conduct \n");
   }
   render() {
+    iniZokrates();
     return (
-    <div>
+  <div>          
   <meta charSet="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
   <title>DApp</title>
@@ -71,14 +74,12 @@ class App extends Component {
     <nav className="navbar navbar-light navbar-expand-md">
       <div className="container-fluid"><a className="navbar-brand link-light" href="#" style={{color: 'var(--bs-yellow)', fontFamily: '"Alfa Slab One", serif'}}>&nbsp; NFT AUCTION</a><button data-bs-toggle="collapse" className="navbar-toggler" data-bs-target="#navcol-1"><span className="visually-hidden">Toggle navigation</span><span className="navbar-toggler-icon" /></button>
         <div className="collapse navbar-collapse" id="navcol-1">
-          <Router>
           <ul className="navbar-nav">
             <li className="nav-item"><a className="nav-link active" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}><Link to="/conductElection">Conduct Election</Link></a></li>
             <li className="nav-item"><a className="nav-link" style={{color: 'var(--bs-yellow)', fontFamily: '"Alfa Slab One", serif'}}><Link to="/generateVoteKey">Generate Vote Key</Link></a></li>
             <li className="nav-item"><a className="nav-link" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}><Link to="/submitVote">Submit Vote</Link></a></li>
             <li className="nav-item" />
           </ul>
-          </Router>
         </div>
       </div>
     </nav>

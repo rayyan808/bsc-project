@@ -3,6 +3,18 @@ import { ElectionAbi, ELECTION_ADDRESS } from '../assets/contracts/ElectionAbi.j
 
 let web3 = new Web3(/*Web3.givenProvider ||*/ "ws://localhost:7545");
 let Election = new web3.eth.Contract(ElectionAbi,ELECTION_ADDRESS);
+let Accounts = async () => { return await web3.eth.getAccounts(); }
+/*
+   try {
+     console.log(ElectionAbi);
+    Election = new web3.eth.Contract(Abi,ELECTION_ADDRESS);
+    console.log(Election.methods);
+   // Election = await eContract.at(ELECTION_ADDRESS/*  , 'hex address of contract');
+   } catch(err){
+     console.log("Error initializing Election Contract :" + err);
+   } */
+  //iniZokrates();
+
 /*
 async function iniDApp() 
 {
@@ -26,4 +38,4 @@ async function iniDApp()
    }
   //iniZokrates();
 }  */
-export {Election, web3};
+export {Election, Accounts, web3};

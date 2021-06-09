@@ -1,12 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {BrowserRouter as Router, Redirect, Switch, Route} from 'react-router-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
+import SubmitVoteForm from './components/submitVote';
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Router>
+    <Switch>
+    <Route path="/generateVoteKey" render={(props) => <VoteKeyGeneratorForm {...props} />} />
+    <Route path="/conductElection" render={(props) => <App {...props} />} />
+    <Route path="/submitVote" render={(props) => <SubmitVoteForm {...props} />} />
+    <Redirect to="/conductElection"/>
+          </Switch>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );
