@@ -6,6 +6,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
 import SubmitVoteForm from './components/submitVote';
+import {iniAccounts} from './components/web3_utility';
+import { iniZokrates } from './components/zkProvider';
 ReactDOM.render(
   <React.StrictMode>
     <Router>

@@ -4,10 +4,10 @@ import '../assets/bootstrap/css/bootstrap.min.css';
 import '../assets/fonts/ionicons.min.css';
 
 import {Component, useEffect, useState} from 'react';
-import { voteKeyGenerator, zkProvider}  from './zkProvider';
-import { Accounts, Election, web3 } from "./web3_utility";
+import { voteKeyGenerator, zkProvider, iniZokrates}  from './zkProvider';
+import {Election, Accounts, web3, iniAccounts} from './web3_utility';
 import { withRouter } from 'react-router-dom';
-import { initialize, metadata } from 'zokrates-js';
+import { initialize } from 'zokrates-js';
 
 const data =[{"name":"test1"},{"name":"test2"}];
 class SubmitVoteForm extends Component {
@@ -17,6 +17,8 @@ class SubmitVoteForm extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSecretKey = this.handleSecretKey.bind(this);
         this.checkButtonDisplay = this.checkButtonDisplay.bind(this);
+        iniAccounts();
+        iniZokrates();
     }
   /*  handleChange = (e) => {
       const val  = e.target.value;
@@ -44,14 +46,18 @@ class SubmitVoteForm extends Component {
       console.log("SK set");
       this.checkButtonDisplay();
     }
-   submitVote = (e) => {
+   submitVote = async (e) => {
      e.preventDefault();
      /* Generate a Proof*/
         /* Call Election.getMerkleInfo */
         console.log("Retreiving your Merkle Information.");
-        await Election.methods
+         Election.methods
           .getMerkleInfo(this.state.electionName, 3, this.state.candidateA, this.state.candidateB)
-          .send({ from: Accounts[0], gas: 400000 });
+          .call({ from: Accounts[0], gas: 400000 }, (err, val) => {
+            /* Callback from getMerkleInfo*/
+            const returnVal = val;
+            console.log("GetMerkleInfo returned: " + returnVal);
+          });
        
           console.log("End of Conduct \n");
         /* Call zk.generateProof*/
@@ -85,7 +91,7 @@ class SubmitVoteForm extends Component {
             <h2 className="visually-hidden">Login Form</h2>
             <div className="illustration"><i className="icon ion-ios-locked-outline" /></div>
             <div className="mb-3" />
-            <div>
+            <div> 
 
   <ul>
     {this.state.candidateList.map((element, index) => {

@@ -55,6 +55,7 @@ contract Election {
     uint256[]  public  merkleArray;
     Candidate[] public candidates;
     
+    uint256 public merkleRoot;
 
     uint public terminateElection;
     /* Everytime the stage transitions, an announcement is made to all suscribers.
@@ -96,7 +97,7 @@ contract Election {
         /* While there are still nodes to traverse*/
           while (n > 0) {
             /* Each iteration covers one layer of the tree. Starting with the original voteKey values */
-            for (uint offset = 0; offset < n - 1; offset+=2) {
+            for (uint offset = 0; offset < n - 1; offset+=2) { //Offset is the number of nodes operated on within the scope of the iteration
                 /* Pair-hash neighbouring nodes and move forward by two steps*/
                 uint256[] memory x;
                 /* Transfer values from the appropiate index (nodes already covered + offset)*/
@@ -109,6 +110,8 @@ contract Election {
             nodeCount += n;
             /* Div2 will get us to the next layer count, due to the nice properties of Binary Trees and Powers of 2 we can just div*/
             n = n / 2;
+            if(n <= 0){ //next while wont occur. The offset at this point is the number of nodes in the tree
+            }
         }
         /* merkleArray now contains all nodes, ordered by indexing of layer size. i.e 8 voteKeys => index [0..7], 4 parent nodes produced => index [8..11], 2 nodes produced => index [12..13], Merkle Root => index [14]*/
         currentState = "VOTING-OPEN";
@@ -117,11 +120,12 @@ contract Election {
     /* Use Case (DApp)
     When a user inputs a secret key (SK) and clicks the 'Join Vote' button,
     SK is locally hashed using MiMC before being sent as a VOTE KEY*/
-    function pushVoteKey(uint256 voteKey) public {
+    function pushVoteKey(string memory str) public {
+        uint256 voteKey = stringToUint(str);
         /* check double-vote and if votekey generation stage is active*/
        // require(currentState == "VOTEKEY-GENERATION");
         /* Make sure the voter has been authorized and that they haven't already generated a key*/
-        require(voters[msg.sender].authorized == true && voters[msg.sender].submittedVoteKey == false);
+        //require(/*voters[msg.sender].authorized == true &&*/ voters[msg.sender].submittedVoteKey == false);
         /* Mapping Implementation */
         voteKeys[msg.sender].value = voteKey;
         voteKeys[msg.sender].modified = true;
@@ -129,10 +133,22 @@ contract Election {
         voteKeyArray.push(VoteKey(voteKey, true));
         activeVoters++;
         /* Check if our voter count exceeded or reached a power of 2*/
-        if(activeVoters >= 2) { 
-          //  generateMerkleTree(); 
+        if(activeVoters == 4) { 
+           createMerkleArray();
             }
+            emit Debug(voteKey);
     }   
+   function stringToUint(string memory s) private pure returns (uint result) {
+        bytes memory b = bytes(s);
+        uint i;
+        result = 0;
+        for (i = 0; i < b.length; i++) {
+            uint c = uint(uint8(b[i]));
+            if (c >= 48 && c <= 57) {
+                result = result * 10 + (c - 48);
+            }
+        }
+    }
     function conductElection(string memory inputName, uint8 treeDepth, string memory candidateA, string  memory candidateB) public  {
         require(treeDepth >= 1 && treeDepth <= 33); //33 is the maximum depth of the tree allowed
         
@@ -162,13 +178,17 @@ contract Election {
             if(activeVoters == 0){ currentState = "END"; }
         
     } 
-   // function generateMerkle() private {
-        /* We already have the H1 of each secretKey as a VoteKey 
-        Now, we must take pairs and hash with eachother*/
-        //for(uint i =0; i < voteKeyArray.length; i++){
-            
-       // }
-   // } 
+    function getMerkleInfo(uint256 voteKey) public view returns(uint256, uint256, uint256 [] memory) {
+    	uint targetIndex = 1337;
+    	for(uint i =0; i< merkleArray.length; i++){
+    		if(voteKey == merkleArray[i]){
+    		 targetIndex = i;
+    		/* From i till N, move up a layer, find appropiate index*/
+    		}
+    	}
+    	require(targetIndex != 1337);
+    	return (targetIndex, merkleArray.length, merkleArray);
+    }
     /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
     / value that affects the summation in submitVote(..)*/
     function authorize(address citizen) public {

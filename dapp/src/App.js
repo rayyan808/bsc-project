@@ -5,7 +5,7 @@ import {useRoutes} from './routes';
 import { BrowserRouter, Link, Switch, Route, Router} from 'react-router-dom';
 import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
 //import {useState, setState} from 'react';
-import {Election, Accounts, web3} from './components/web3_utility';
+import {Election, Accounts, web3, iniAccounts} from './components/web3_utility';
 import {iniZokrates, zkProvider} from './components/zkProvider';
 const Abi = require ('./assets/contracts/electionAbi.json');
 //const { initialize } = require('zokrates-js');
@@ -15,11 +15,14 @@ class App extends Component {
     this.state = {
         electionName: "John Doe",
         candidateA: "john.doe@test.com",
-        candidateB: ""
+        candidateB: "",
+        account: 0
       };
       this.handleChange = this.handleChange.bind(this);
       this.conductElection = this.conductElection.bind(this);
       //this.useRoutes = this.useRoutes.bind(this);
+      iniAccounts();
+    iniZokrates();
     }
   async iniDApp() 
   {
@@ -50,16 +53,17 @@ class App extends Component {
     e.preventDefault();
     //await this.iniDApp();
     console.log("Sending request to Blockchain network \n");
-    
+    console.log("Account initialized: " + Accounts[0]);
     console.log(this.state.electionName +  "\n");
+    
     await Election.methods
       .conductElection(this.state.electionName, 3, this.state.candidateA, this.state.candidateB)
-      .send({ from: Accounts[0], gas: 400000 });
+      .send({ from: Accounts[this.state.account], gas: 400000 });
    
       console.log("End of Conduct \n");
   }
   render() {
-    iniZokrates();
+    
     return (
   <div>          
   <meta charSet="utf-8" />
@@ -91,6 +95,7 @@ class App extends Component {
         <input className="form-control" onChange={this.handleChange} value={this.state.electionName} type="text" name="electionName" placeholder="Election Name" id="name" />
         <input className="form-control" onChange={this.handleChange} value = {this.state.candidateA} type="text" placeholder="Candidate A" name="candidateA" id="candidateA" />
         <input className="form-control" onChange={this.handleChange} value={this.state.candidateB} type="text" placeholder="Candidate B" name="candidateB" id="candidateB" /></div>
+        <div className="mb-3"><input className="form-control" type="number" id="account" name="account" onChange = {this.handleChange} placeholder="Enter the Account index" /></div>
       <div className="mb-3"><button className="btn btn-outline-secondary d-block w-100" type="submit" onClick={this.conductElection}>&nbsp;Conduct Election</button></div><a className="forgot" href="#">Rayyan Jafri</a>
     </form>
   </section>
