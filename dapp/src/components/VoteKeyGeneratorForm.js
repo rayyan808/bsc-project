@@ -1,11 +1,12 @@
 import '../assets/css/Login-Form-Dark.css';
 import '../assets/css/styles.css';
+import '../assets/bootstrap/css/bootstrap.min.css';
 import {Component, useEffect, useState} from 'react';
 import { iniZokrates, voteKeyGenerator, zkProvider}  from './zkProvider';
 import {Election, Accounts, web3, iniAccounts, getAccounts} from './web3_utility';
 import { withRouter } from 'react-router-dom';
 import {initialize, metadata } from 'zokrates-js';
-
+import Select from 'react-select';
 class VoteKeyGeneratorForm extends Component {
     constructor(props){
         super(props);
@@ -13,11 +14,13 @@ class VoteKeyGeneratorForm extends Component {
             secretKey: null,
             voteKey: null,
             account: null,
-            accountList: [],
+            accountList: Accounts,
             voteKeyGenerator: null,
+            accountLoaded: false,
             hashBinary: null,
             zokFile: null,
-            witness: null
+            witness: null,
+            accountLabels: [{}]
           };
           this.handleChange = this.handleChange.bind(this);
           this.generateVoteKey = this.generateVoteKey.bind(this);
@@ -30,14 +33,23 @@ class VoteKeyGeneratorForm extends Component {
          this.bootUp = this.bootUp.bind(this);
          this.getAccounts = this.getAccounts.bind(this);
          this.displayAccountlist = this.displayAccountlist.bind(this);
+         this.generateMerkle = this.generateMerkle.bind(this);
          this.bootUp();
         }
         bootUp = async () => {
-         iniAccounts().then(() => { 
-            console.log("Bootup accountlist: " + this.state.accountList)});
+         iniAccounts().then((acc) => { 
+            this.state.accountList = Accounts;
+            console.log("Bootup accountlist: " + this.state.accountList);
+            this.state.accountLoaded = true;
+            var labels = new Array();
+            for(var i =0; i < this.state.accountList.length; i++){
+              var x = {label : this.state.accountList[i], "value" : i};
+              labels.push(x);
+            }
+            this.state.accountLabels = labels;
+            console.log(this.state.accountLabels);
+          });
           await iniZokrates();
-          var a = Accounts;
-        this.setState({accountList: a } );
        // console.log("Bootup accountlist: " + Accounts)
         }
         getAccounts = async (e) => {
@@ -81,7 +93,7 @@ class VoteKeyGeneratorForm extends Component {
         //@TODO: Convert hashABI into direct JSON read
         console.log("Computing Witness fo")
         console.log("COMPILER ZOK-JS: " + metadata.version)
-        let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [["1337","0"]]);
+        let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,"0"]]);
         var rawString = computationResult.output.trim();
         console.log("raw string trimmed: " + rawString);
         rawString = rawString.replace("[", "");rawString = rawString.replace("]", ""); 
@@ -108,7 +120,7 @@ class VoteKeyGeneratorForm extends Component {
         var bigVal = this.state.voteKey;
         await Election.methods
           .pushVoteKey(bigVal)
-          .send({ from: Accounts[this.state.account], gas: 4000000 }).then((receipt) => {
+          .send({ from: await this.state.accountList[this.state.account], gas: 4000000 }).then((receipt) => {
             console.log(receipt);
           });
        
@@ -129,9 +141,14 @@ class VoteKeyGeneratorForm extends Component {
     }
     compileZok = (e) => {
       e.preventDefault();
+      if(zkProvider !== undefined){
       console.log(this.state.zokFile);
       this.setState({voteKeyGenerator: zkProvider.compile(this.state.zokFile)});
       console.log("artifact compiled: " + this.state.voteKeyGenerator);
+      } else {
+        iniZokrates();
+        console.log("Zokrates hasn't initialized yet.");
+      }
     }
     render() {
             return (
@@ -171,16 +188,40 @@ class VoteKeyGeneratorForm extends Component {
                     {this.displayGenerateVoteKey()}
                     {this.displaySubmitVoteKey()}
                     <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.displayAccountlist}>Get Accounts</button></div>
+
+                    <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.generateMerkle}>[DEBUG] Generate on-chain merkle</button></div>
 <p>Available Accounts: </p> 
- <ul>
-  {this.displayAccountlist()}
-  </ul>
+ <Select className=".dropdown" label="Select an Account"
+    theme={(theme) => ({
+      ...theme,
+      borderRadius: 0,
+      colors: {
+      ...theme.colors,
+        text: 'orangered',
+        neutral0: 'black',
+        primary25: 'hotpink',
+        primary: 'black',
+      },
+    })}
+     options={this.state.accountLabels} onChange={this.handleAccountChange}/>
+
+
                     <a className="forgot" href="/conductElection.html">Want to start your own election?</a>
                   </form>
                 </section>
               </div>
             );
             }
+      /* debug */
+      generateMerkle = async (e) => {
+        e.preventDefault();
+        console.log("Generating Merkle");
+        await Election.methods
+        .createMerkleArray()
+        .send({ from: await this.state.accountList[this.state.account], gas: 4000000 }).then((receipt) => {
+          console.log(receipt);
+        });
+      }
       displayGenerateVoteKey = () => {
         if(this.state.voteKeyGenerator != null){
           return (<div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.generateVoteKey}>Generate Vote Key</button></div>)
@@ -191,16 +232,34 @@ class VoteKeyGeneratorForm extends Component {
          return(<div className="mb-3"><a>Your vote key: {this.state.voteKey} </a><button className="btn btn-primary d-block w-100" type="submit"  onClick= {this.submitVoteKey}>Submit Vote Key</button></div>)
         }
       }
+      handleAccountChange = (e) => {
+          //e.preventDefault();
+          this.setState({account: e.value});
+          console.log("Account selected: " + this.state.accountList[e.value]);
+      }
       displayAccountlist = () => {
-        
+        if(this.state.accountList != null) {
+          console.log("Displaying Account List" + this.state.accountList);
           this.state.accountList.map((element, index) => {
-            return(<li onClick={this.handleChange/**idx */} name="account" value={this.state.account} key={element} id={index}>{element}</li>);
-          })
+            console.log("next item: " + element);
+            return(<li><a>{element}</a></li>)
+           // return(<li><a onClick={this.handleChange} name="account" value={this.state.account} key={element} id={index}>{element}</a></li>);
+        });
+      } else {
+        console.log("Account list loading..");
+          return(<li><a>Accounts are still loading..</a></li>);
+      }
+      }
+     /* displayAccountlist = () => {
+          getAccounts((resolve, reject) => {return(<li>Loading Accounts! {resolve()}{reject()}</li>);  }).then((accounts) => {accounts.map((element, index) => {
+            return(<li onClick={this.handleChange} name="account" value={this.state.account} key={element} id={index}>{element}</li>);
+          })}).catch((err) => { return(<li onClick={this.displayAccountlist}> {err} Accounts could not be loaded (Is your blockchain running?</li>); });*/
       /*   else {
           return(<li> There was an error retrieving the accounts. (web3.getAccounts is undefined) 
           <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.getAccounts}>Get Accounts</button></div></li>);
-        } */
-      }
+        }
+       } */
+    
     
       //***************** BUGGY ************************ */
     getHashBinary = (event) => { 

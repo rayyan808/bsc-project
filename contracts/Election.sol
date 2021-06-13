@@ -79,7 +79,7 @@ contract Election {
     } */
     /* Once the VOTEKEY-GENERATION period has expired, this function is called to produce a Merkle Tree.
     There should be a Nth power of 2 length of valid vote keys, if such a case does not exist dummy values are pumped. */
-    function createMerkleArray() private {
+    function createMerkleArray() public {
         /* Guarantee that a valid merkle tree can be constructed with the given nodes*/
         assert(voteKeyArray.length >= 2);
         uint pow = 1; bool isPowerOf2 = false;
