@@ -1,5 +1,5 @@
 
-export const ELECTION_ADDRESS = '0x69CD3025E8D35d93AC7AD3508BF9848D1A2171B1';
+export const ELECTION_ADDRESS = '0x93830982c1CF7a9070cBF8Ce6979df19BA2149Cf';
 export const ElectionAbi =[
   {
     "inputs": [],
@@ -128,25 +128,6 @@ export const ElectionAbi =[
         "internalType": "string",
         "name": "",
         "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "merkleArray",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -331,6 +312,19 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCandidates",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ];

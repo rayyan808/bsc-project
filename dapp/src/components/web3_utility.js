@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import { ElectionAbi, ELECTION_ADDRESS } from '../assets/contracts/ElectionAbi.js';
 
 let web3 = new Web3(/*Web3.givenProvider ||*/ "ws://localhost:7545");
+web3.eth.handleRevert = true;
 let Election = new web3.eth.Contract(ElectionAbi,ELECTION_ADDRESS);
 let Accounts;
 let iniAccounts = async () => { try { await web3.eth.getAccounts().then((acc) => {

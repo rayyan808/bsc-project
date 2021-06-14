@@ -52,7 +52,7 @@ contract Election {
     mapping(address => VoteKey) voteKeys;
 
     VoteKey[] internal voteKeyArray;
-    uint256[]  public  merkleArray;
+    uint256[] internal merkleArray;
     Candidate[] public candidates;
     
     uint256 public merkleRoot;
@@ -78,11 +78,13 @@ contract Election {
 
     } */
     /* Once the VOTEKEY-GENERATION period has expired, this function is called to produce a Merkle Tree.
-    There should be a Nth power of 2 length of valid vote keys, if such a case does not exist dummy values are pumped. */
+    There should be a Nth power of 2 length of valid vote keys, if such a case does not exist dummy values are pumped. 
+    GAS COST EST: 300k */
     function createMerkleArray() public {
         /* Guarantee that a valid merkle tree can be constructed with the given nodes*/
-        assert(voteKeyArray.length >= 2);
+        //assert(voteKeyArray.length >= 2);
         uint pow = 1; bool isPowerOf2 = false;
+        uint256 tempValDebug =0;
         /* Find the power of 2 closest or equal to the length, if equal do nothing */
         while(pow <= voteKeyArray.length){ if(pow == voteKeyArray.length) { isPowerOf2 = true; break; } else { pow = pow *2; } }
         /* If index isn't a power of two, we pump it with static public vote keys */
@@ -90,7 +92,9 @@ contract Election {
         /* For each voteKey struct present, transfer the hashed value into the Merkle Array */
         for(uint i =0; i < voteKeyArray.length; i++){
             //leaf = MiMC.MiMC_Hash([voteKeyArray[i],voteKeyArray[i+1]]);
-            merkleArray.push(voteKeyArray[i].value);
+            emit Debug(tempValDebug);
+            tempValDebug = voteKeyArray[i].value;
+            merkleArray.push(tempValDebug);
         }
         uint nodeCount=0;
         uint n = voteKeyArray.length;
@@ -134,6 +138,8 @@ contract Election {
         activeVoters++;
         /* Check if our voter count exceeded or reached a power of 2*/
         if(activeVoters == 4) { 
+
+            emit Debug(voteKey);
            createMerkleArray();
             }
             emit Debug(voteKey);
@@ -213,5 +219,13 @@ contract Election {
         uint256 hashed = MiMC.MiMC_Hash(alpha);
        // emit Debug(hashed);
         return hashed;
+    }
+    /* ====================== WEB3 HELPER GETTERS ====================*/
+    function getCandidates() public view returns(string[] memory){
+        string[] memory result = new string[](candidates.length);
+        for(uint i=0; i<candidates.length; i++){
+            result[i]= (candidates[i].name);
+        }
+        return result;
     }
 }

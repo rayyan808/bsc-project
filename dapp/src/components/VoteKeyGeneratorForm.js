@@ -188,7 +188,6 @@ class VoteKeyGeneratorForm extends Component {
                     {this.displayGenerateVoteKey()}
                     {this.displaySubmitVoteKey()}
                     <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.displayAccountlist}>Get Accounts</button></div>
-
                     <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.generateMerkle}>[DEBUG] Generate on-chain merkle</button></div>
 <p>Available Accounts: </p> 
  <Select className=".dropdown" label="Select an Account"

@@ -2,43 +2,54 @@ import '../assets/css/Login-Form-Dark.css';
 import '../assets/css/styles.css';
 import '../assets/bootstrap/css/bootstrap.min.css';
 import '../assets/fonts/ionicons.min.css';
-
+import Select from 'react-select';
 import {Component, useEffect, useState} from 'react';
+import Button from 'react-bootstrap/Button';
 import { voteKeyGenerator, zkProvider, iniZokrates}  from './zkProvider';
 import {Election, Accounts, web3, iniAccounts} from './web3_utility';
 import { withRouter } from 'react-router-dom';
 import { initialize } from 'zokrates-js';
 
-const data =[{"name":"test1"},{"name":"test2"}];
+const candidateLabels =[{label:"Trump", value: 0 },{label:"Obama", value: 1 }];
 class SubmitVoteForm extends Component {
+    /* ==================================== INITIALIZATION ==================================================*/
     constructor(props){
         super(props);
-        this.state={candidateID: null,candidateName: "None", candidateList: ["Trump", "Obama"], secretKey: null};
+        this.state={
+        candidateID: null,candidateName: "None", candidateLoaded: false, candidateList: [],candidateLabels: [{}], //Candidate Props
+        account: null, accountList: null, accountLoaded: false, accountSelected: false, //Account Props
+        secretKey: null, voteKey: null, proofGenerated: false,//Zero-Knowledge Props
+        membershipGenerator: null, zokFile: null, fileCompiled: false
+      };
         this.handleChange = this.handleChange.bind(this);
         this.handleSecretKey = this.handleSecretKey.bind(this);
         this.checkButtonDisplay = this.checkButtonDisplay.bind(this);
-        iniAccounts();
+                      /* Candidates */
+        this.handleCandidateLabel = this.handleCandidateLabel.bind(this);
+        this.getCandidates = this.getCandidates.bind(this);
+                      /* Accounts */
+        this.displayAccountlist = this.displayAccountlist.bind(this);
+        this.handleAccountChange = this.handleAccountChange.bind(this);
+        this.getAccounts = this.getAccounts.bind(this);
+                    /* Zokrates File MGMT */
+        this.generateProof = this.generateProof.bind(this);
+            /* Initialization Second Phase */
+        this.getAccounts();
         iniZokrates();
     }
-  /*  handleChange = (e) => {
+    /*=====================================================================================================*/
+    handleChange = (e) => {
       const val  = e.target.value;
       this.setState({
         [e.target.name]: val
       });
       console.log('State: ' + e.target.name + ' Value:' + val);
-      };*/
+      }
        /* Only display the submit vote option if both fields have (valid) inputs*/
     checkButtonDisplay = () => {
       if(this.state.secretKey != null && this.state.candidateID != null){
           return (<button className="btn btn-outline-success d-block w-100" type="submit" onClick={this.submitVote}>Submit Vote</button>)
       }
-    }
-    handleChange = (e) => {
-        e.preventDefault();
-        this.setState({candidateID: e.target.value});
-        this.setState({candidateName: this.state.candidateList[e.target.value]});
-        console.log("New candidate chosen: " + this.state.candidateName + "with ID:" + this.state.candidateID);
-        this.checkButtonDisplay();
     }
     handleSecretKey = (e) => {
       e.preventDefault();
@@ -52,8 +63,8 @@ class SubmitVoteForm extends Component {
         /* Call Election.getMerkleInfo */
         console.log("Retreiving your Merkle Information.");
          Election.methods
-          .getMerkleInfo(this.state.electionName, 3, this.state.candidateA, this.state.candidateB)
-          .call({ from: Accounts[0], gas: 400000 }, (err, val) => {
+          .getMerkleInfo(this.state.voteKey)
+          .call({ from: this.state.accountList[this.state.account], gas: 400000 }, (err, val) => {
             /* Callback from getMerkleInfo*/
             const returnVal = val;
             console.log("GetMerkleInfo returned: " + returnVal);
@@ -62,6 +73,123 @@ class SubmitVoteForm extends Component {
           console.log("End of Conduct \n");
         /* Call zk.generateProof*/
    }
+   /* =========================================== CANDIDATE MANAGEMENT ===================================================================*/
+   getCandidates = async (e) => {
+    e.preventDefault();
+    if(this.state.accountLoaded && this.state.account != null){
+      /* Retrieve Candidate List from Blockchain */
+      console.log("Sending request to Blockchain..");
+      await Election.methods.getCandidates()
+      .call({ from: await this.state.accountList[this.state.account], gas: 4000000 })
+      .then((receipt) => {
+          console.log("Candidate List recieved: " + receipt);
+          this.setState({candidateList: receipt});
+          this.setState({candidateLoaded: true});
+          /* Each name comes sequentially in an array, so i becomes the index */
+          var labels = new Array();
+          for(var i =0; i < receipt.length; i++)
+            {
+                var x = {label : receipt[i], "value" : i};
+                labels.push(x);
+            }
+          this.setState({candidateLabels : labels});
+          console.log(this.state.candidateLabels);
+      });
+      } 
+      /* We haven't got an account to query the blockchain yet. */
+      else {  this.getAccounts(); }
+   }
+    
+    /* Handle Candidate Dropdown Selection => Passes candidate index as e.value*/
+    handleCandidateLabel= (argument) => {
+      this.setState({candidateName: this.state.candidateList[argument.value]});
+      this.setState({candidateID: argument.value});
+      console.log("New Candidate Chosen: " + this.state.candidateName);
+    }
+   /* =========================================== ACCOUNT MANAGEMENT ==================================================================== */
+   /* Click button 'Get Accounts' => Async retrieve accounts via web3 utility*/
+   getAccounts = async (e) => {
+     if( e !== undefined) {e.preventDefault();}
+     if(!this.state.accountLoaded){
+    console.log("Retrieving Accounts from Blockchain.");
+    iniAccounts().then((acc) => { 
+      this.setState({accountList : Accounts});
+      this.setState({accountLoaded: true});
+      var labels = new Array();
+      for(var i =0; i < Accounts.length; i++){
+        var x = {label : Accounts[i], "value" : i};
+        labels.push(x);
+      }
+      this.setState({accountLabels : labels});
+      console.log(this.state.accountLabels);
+    });
+  }
+}
+  /* NOT IN USE */
+   displayAccountlist = () => {
+    if(this.state.accountList != null) {
+      console.log("Displaying Account List" + this.state.accountList);
+      this.state.accountList.map((element, index) => {
+        console.log("next item: " + element);
+        return(<li><a>{element}</a></li>)
+    });
+  } else {
+    console.log("Account list loading..");
+      return(<li><a>Accounts are still loading..</a></li>);
+    }
+  }
+  /* New Account Address selected in dropdown => Change state variable */
+  handleAccountChange = (e) => {
+    //e.preventDefault();
+    this.setState({account: e.value});
+    this.setState({accountSelected: true});
+    console.log("Account selected: " + this.state.accountList[e.value]);
+  }
+/*=================================================== ZOKRATES FILE MANAGEMENT ===================================================================================== */
+getZokFile = (event) => {
+  console.log("Get Zok File caled");
+  const file = event.target.files[0];
+  console.log('files: ' + file);
+  const reader = new FileReader();
+  reader.readAsText(file);
+  reader.addEventListener('load', (e) => {
+    const buffer = reader.result;
+    const bufferLength = buffer.length;
+    console.log("Data loaded successfully");
+    this.setState({zokFile: buffer.toString()/*CHANGED*/});
+  });
+}
+compileZok = (e) => {
+  e.preventDefault();
+  if(zkProvider !== undefined){
+  console.log(this.state.zokFile);
+  this.setState({membershipGenerator: zkProvider.compile(this.state.zokFile)});
+  this.setState({fileCompiled: true});
+  console.log("artifact compiled: " + this.state.membershipGenerator);
+  } else {
+    iniZokrates();
+    console.log("Zokrates hasn't initialized yet.");
+  }
+}
+generateProof = (e) => {
+  e.preventDefault();
+  if(zkProvider !== undefined){
+    console.log("Retreiving your Merkle Information.");
+    Election.methods
+     .getMerkleInfo(this.state.voteKey)
+     .call({ from: this.state.accountList[this.state.account], gas: 400000 }, (targetIndex, merkleLength, merkleArray) => {
+       /* Callback from getMerkleInfo*/
+       console.log("Your leaf index:" + targetIndex + "\n Total Merkle Nodes: " + merkleLength + "\n Merkle Array: " + merkleArray);
+       console.log("COMPUTE DIRECTION SELECTOR");
+       //@TODO: Compute Direction Selector using mod 2 trick
+      //const witness = zkProvider.computeWitness(membershipGenerator, [this.state.])
+      //this.setState({proof: zkProvider.generateProof(membershipGenerator, )})
+     });
+  
+     console.log("End of Conduct \n");
+  }
+}
+/* =====================================================================================================================================================================*/
     render () {
         return (
             <div>
@@ -86,37 +214,63 @@ class SubmitVoteForm extends Component {
               </div>
             </div>
           </nav>
-          <div className="alert alert-success" role="alert"><span><strong>Pick a candidate and supply your secret key, this will automatically generate a zero-knowledge proof of membership and use it to submit your vote option to the blockchain. If an incorrect secret key is provided, the proof being sent to the chain will be rejected.&nbsp;</strong></span></div>
+          <div className="alert alert-success" role="alert"><span><strong>Query the Candidate List using the Available Accounts, Pick a candidate and supply your secret key, this will automatically generate a zero-knowledge proof of membership and use it to submit your vote option to the blockchain. If an incorrect secret key is provided, the proof being sent to the chain will be rejected.&nbsp;</strong></span></div>
           <form method="post">
             <h2 className="visually-hidden">Login Form</h2>
             <div className="illustration"><i className="icon ion-ios-locked-outline" /></div>
             <div className="mb-3" />
             <div> 
+            <div><p>Select an Account: </p> 
+                <Select  label="Select an Account"
+                        theme={(theme) => ({
+                                ...theme,
+                                borderRadius: 0,
+                                colors: {
+                                ...theme.colors,
+                                text: 'orangered',
+                                neutral0: 'black',
+                                primary25: 'hotpink',
+                                primary: 'black',
+                              },
+                        })}
+                        options={this.state.accountLabels} onChange={this.handleAccountChange}/>
 
-  <ul>
-    {this.state.candidateList.map((element, index) => {
-                      console.log("element: " + element + "index: " + index);
-                      return(<li onClick={this.handleChange/**idx */} name={element} value={index} key={index} id={index}>{element}</li>);
-                    })};
-  </ul>
-
-  <a>Selected Candidate: {this.state.candidateName} </a>
-</div>
-            <div className="dropdown">
-                
-                
-                <a className="btn btn-outline-primary dropdown-toggle link-primary" data-bs-toggle="dropdown" id="collapseCandidateList" role="button" aria-expanded="true" data-bs-target="collapseCandidateList" type="button" style={{color: 'var(--bs-green)'}}>Choose Candidate&nbsp; </a>
-              
-              
-              <div className="dropdown-menu" aria-labelledby="collapseCandidateList">
-                <a className="dropdown-item" href="#"> Example </a>
-                    {this.state.candidateList.map((element, index) => {
-                      console.log("element: " + element + "index: " + index);
-                      return(<a className="dropdown-item" onClick={this.handleChange/**idx */} value={this.state.candidate} name={index} key={index} id={index}>{element}</a>);
-                    })};
-                  </div>
             </div>
-            <div className="mb-3" /><input className="form-control" type="text" name="secretKey" id="secretKey" onChange={this.handleSecretKey} placeholder="Enter your Secret Key" />
+                <Button variant="btn btn-primary d-block w-100" disabled={!this.state.accountSelected} onClick={this.getCandidates}>{this.state.accountSelected ? 'Get Candidates' : 'Select an Account First'}</Button>
+                <div className="mb-3" /> 
+                <a>{this.state.candidateName == "None" ? '' : this.state.candidateName  } </a>
+                <Select className=".dropdown" name="Select a Candidate"
+                        isDisabled = {!this.state.candidateLoaded}
+                        theme={(theme) => ({
+                               ...theme,
+                              borderRadius: 0,
+                              colors: {
+                                       ...theme.colors,
+                                        text: 'orangered',
+                                        neutral0: 'black',
+                                        primary25: 'hotpink',
+                                        primary: 'black',
+                                      },
+                                })}
+                        options={this.state.candidateLabels} onChange={this.handleCandidateLabel}/>
+  
+            </div>
+          
+<div>
+<div className="mb-3">
+<div className="mb-3" />
+<input className="form-control" type="text" name="secretKey" id="secretKey" onChange={this.handleSecretKey} placeholder="Enter your Secret Key" />
+<input className="form-control" type="text" name="voteKey" id="voteKey" onChange={this.handleChange} placeholder="Enter your Vote Key" />
+<input type="file" id="fileGetter_Hash" onChange={this.getZokFile}></input>  
+<div className="mb-3" />
+<Button variant="btn btn-outline-info d-block w-100" onClick={this.compileZok}> Compile Circuit </Button>
+<div className="mb-3" />
+<Button variant="btn btn-outline-info d-block w-100" disabled={!this.state.fileCompiled} onClick={this.generateProof}> {this.state.proofGenerated ? 'Regenerate' : 'Generate Proof'}</Button>
+<div className="mb-3" />
+<Button variant="btn btn-outline-success d-block w-100" disabled={!this.state.proofGenerated} onClick={this.submitVote}> {this.state.proofGenerated ? 'Submit Vote' : 'Cannot vote without a proof'}</Button>
+<div className="mb-3" />
+<Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.getAccounts}>{this.state.accountLoaded ? 'Refresh Accounts' : 'Get Accounts'}</Button></div>
+</div>
            
             <div className="mb-3" />
           {this.checkButtonDisplay()}
