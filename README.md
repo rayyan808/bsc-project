@@ -1,5 +1,13 @@
 My Bachelor Project
 
+
+HOW TO RUN:
+Run your local blockchain (Ganache, Ganache-CLI, TestRPC..)
+from the project root: npm install, truffle deploy
+
+from dapp root: yarn install, yarn start 
+
+
 Progress so far:
 - Studied Zokrates Docs
 - Studied EVM Docs (Skimmed through, more like)
