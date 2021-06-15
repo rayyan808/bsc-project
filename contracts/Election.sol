@@ -99,11 +99,12 @@ contract Election {
         uint nodeCount=0;
         uint n = voteKeyArray.length;
         /* While there are still nodes to traverse*/
+
+        uint256[] memory x = new uint[](2); //Should be statically defined
           while (n > 0) {
             /* Each iteration covers one layer of the tree. Starting with the original voteKey values */
             for (uint offset = 0; offset < n - 1; offset+=2) { //Offset is the number of nodes operated on within the scope of the iteration
                 /* Pair-hash neighbouring nodes and move forward by two steps*/
-                uint256[] memory x;
                 /* Transfer values from the appropiate index (nodes already covered + offset)*/
                 x[0] = merkleArray[nodeCount + offset];
                 x[1] = merkleArray[nodeCount + offset + 1];
@@ -184,16 +185,16 @@ contract Election {
             if(activeVoters == 0){ currentState = "END"; }
         
     } 
-    function getMerkleInfo(uint256 voteKey) public view returns(uint256, uint256, uint256 [] memory) {
-    	uint targetIndex = 1337;
+    function getMerkleInfo(uint256 voteKey) public view returns(uint256 targetIndex, uint256 firstLayerSize, uint256 [] memory entireMerkleArray, uint256 merkleRoot) {
+    	uint index = 1337;
     	for(uint i =0; i< merkleArray.length; i++){
     		if(voteKey == merkleArray[i]){
-    		 targetIndex = i;
+    		 index = i;
     		/* From i till N, move up a layer, find appropiate index*/
     		}
     	}
-    	require(targetIndex != 1337);
-    	return (targetIndex, merkleArray.length, merkleArray);
+    	require(index != 1337);
+    	return (index, voteKeyArray.length, merkleArray, merkleArray[merkleArray.length-1]);
     }
     /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
     / value that affects the summation in submitVote(..)*/

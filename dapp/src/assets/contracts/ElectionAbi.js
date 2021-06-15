@@ -1,5 +1,5 @@
 
-export const ELECTION_ADDRESS = '0x93830982c1CF7a9070cBF8Ce6979df19BA2149Cf';
+export const ELECTION_ADDRESS = '0x6a71d5E807378E12D0341415e5ee76a6f6F7170b';
 export const ElectionAbi =[
   {
     "inputs": [],
@@ -94,7 +94,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [
@@ -118,7 +119,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -131,7 +133,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -144,7 +147,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -157,7 +161,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -170,7 +175,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -183,7 +189,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -258,22 +265,28 @@ export const ElectionAbi =[
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "targetIndex",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "firstLayerSize",
         "type": "uint256"
       },
       {
         "internalType": "uint256[]",
-        "name": "",
+        "name": "entireMerkleArray",
         "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "merkleRoot",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [
@@ -312,7 +325,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "pure",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [],
@@ -325,7 +339,8 @@ export const ElectionAbi =[
       }
     ],
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   }
 ];
 	

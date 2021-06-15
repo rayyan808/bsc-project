@@ -18,8 +18,8 @@ class SubmitVoteForm extends Component {
         this.state={
         candidateID: null,candidateName: "None", candidateLoaded: false, candidateList: [],candidateLabels: [{}], //Candidate Props
         account: null, accountList: null, accountLoaded: false, accountSelected: false, //Account Props
-        secretKey: null, voteKey: null, proofGenerated: false,//Zero-Knowledge Props
-        membershipGenerator: null, zokFile: null, fileCompiled: false
+        secretKey: null, voteKey: null, proofGenerated: false, provingKey: null, provingKeySelected: false,//Zero-Knowledge Props
+        membershipGenerator: null, zokFile: null, fileCompiled: false, generatedWitness: null //Zero-Knowledge Props
       };
         this.handleChange = this.handleChange.bind(this);
         this.handleSecretKey = this.handleSecretKey.bind(this);
@@ -33,6 +33,9 @@ class SubmitVoteForm extends Component {
         this.getAccounts = this.getAccounts.bind(this);
                     /* Zokrates File MGMT */
         this.generateProof = this.generateProof.bind(this);
+        this.getProvingKey = this.getProvingKey.bind(this);
+        this.getZokFile = this.getZokFile.bind(this);
+        this.compileZok = this.compileZok.bind(this);
             /* Initialization Second Phase */
         this.getAccounts();
         iniZokrates();
@@ -149,7 +152,7 @@ class SubmitVoteForm extends Component {
 getZokFile = (event) => {
   console.log("Get Zok File caled");
   const file = event.target.files[0];
-  console.log('files: ' + file);
+  //console.log('files: ' + file);
   const reader = new FileReader();
   reader.readAsText(file);
   reader.addEventListener('load', (e) => {
@@ -162,7 +165,7 @@ getZokFile = (event) => {
 compileZok = (e) => {
   e.preventDefault();
   if(zkProvider !== undefined){
-  console.log(this.state.zokFile);
+  //console.log(this.state.zokFile);
   this.setState({membershipGenerator: zkProvider.compile(this.state.zokFile)});
   this.setState({fileCompiled: true});
   console.log("artifact compiled: " + this.state.membershipGenerator);
@@ -171,22 +174,89 @@ compileZok = (e) => {
     console.log("Zokrates hasn't initialized yet.");
   }
 }
-generateProof = (e) => {
+getProvingKey = (event) => {
+  console.log("Get Proving Key caled");
+  const file = event.target.files[0];
+  //console.log('files: ' + file);
+  const reader = new FileReader();
+  reader.readAsText(file);
+  reader.addEventListener('load', (e) => {
+    const buffer = reader.result;
+    console.log("Data loaded successfully");
+    this.setState({provingKey: buffer.toString()/*CHANGED*/});
+  });
+}
+generateProof = async (e) => {
   e.preventDefault();
   if(zkProvider !== undefined){
     console.log("Retreiving your Merkle Information.");
-    Election.methods
+    let result = await Election.methods
      .getMerkleInfo(this.state.voteKey)
-     .call({ from: this.state.accountList[this.state.account], gas: 400000 }, (targetIndex, merkleLength, merkleArray) => {
+     .call({ from: this.state.accountList[this.state.account], gas: 400000 });
        /* Callback from getMerkleInfo*/
-       console.log("Your leaf index:" + targetIndex + "\n Total Merkle Nodes: " + merkleLength + "\n Merkle Array: " + merkleArray);
-       console.log("COMPUTE DIRECTION SELECTOR");
+       console.log("RAW OUTPUT: " + result.toString());
+       var merkleArray = []; var targetIndex = 0; var firstLayerSize = 0;
+       targetIndex = result.targetIndex; firstLayerSize = result.firstLayerSize; merkleArray = result.entireMerkleArray;
+       console.log("Your leaf index:" + targetIndex + "\n First Layer Size: " + firstLayerSize + "\n Merkle Array: " + merkleArray);
+
+       console.log("Merkle Array[0]:" + merkleArray[0]);
        //@TODO: Compute Direction Selector using mod 2 trick
-      //const witness = zkProvider.computeWitness(membershipGenerator, [this.state.])
-      //this.setState({proof: zkProvider.generateProof(membershipGenerator, )})
-     });
-  
-     console.log("End of Conduct \n");
+       /* Explicitly convert the general types because javascript sucks lol */
+       var currentNodeIndex = Number(targetIndex);
+       var merkleRoot = result.merkleRoot;
+       var offset = firstLayerSize;
+       var siblingNodes = [];
+       var dirSelector = [];
+       /* If we have 4 vote keys, taking..currentNodeIndex=0, targetIndex = 0, offset = 4, totalLength = 7 [false]*/
+       /* Second round: currentNodeIndex = 4, offset = 2, totalLength=7 [false, false]*/
+       /* Third Round: currentNodeIndex = 6 => END */
+       /* We iterate UPWARDS from each layer*/
+       while(currentNodeIndex < merkleArray.length) {
+        var localindex = 0;
+        if(currentNodeIndex % 2 == 0){ 
+          dirSelector.push(false); 
+          /* Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. */
+          localindex = Number(currentNodeIndex) + 1;
+          console.log("Adding index:" + localindex)
+          siblingNodes.push(String(merkleArray[localindex])); 
+          console.log("Merkle Node: " + merkleArray[localindex] + "added to sibling nodes");
+        } else { 
+          dirSelector.push(true); 
+          /* Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. */
+          localindex = Number(currentNodeIndex) -1;
+          console.log("Adding index:" + localindex)
+          siblingNodes.push(String(merkleArray[localindex])); 
+          console.log("Merkle Node: " + merkleArray[localindex] + "added to sibling nodes"); 
+        }
+        currentNodeIndex += offset; 
+        offset = offset / 2;
+       }  
+       console.log("Your direction selector: " + dirSelector + "\n Your sibling nodes: " + siblingNodes);
+       console.log("Computing a witness and then generating a proof of membership for you.");
+
+      initialize().then((zkProvider) => {
+       console.log("MembershipTest(" + this.state.secretKey + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
+      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, merkleRoot, dirSelector, siblingNodes]);
+      console.log("Your witness result: " + witness);
+      console.log("Computation Output: " + computationResult);
+      this.setState({generatedWitness: witness});
+      console.log("End of Witness Conduct \n");
+      }).catch((err) => {
+          console.log("Error caught during witness computation:" + err);
+      }).finally(() => {
+        console.log("Async Witness Op concluded.");
+      /* Only after witness computation, begin proof generation*/
+      initialize().then((zkProvider) => {
+        console.log("Conducting Proof Generation")
+      let localProof = zkProvider.generateProof(this.state.membershipGenerator.program, this.state.generatedWitness, this.state.provingKey);
+      console.log("your local proof: " + localProof);
+      this.setState({proof:localProof}); 
+      }).catch((err) => {
+        console.log("Error during Proof Generation: " + err);
+      }).finally( () => {
+        console.log("Conduct Finished.")
+      });
+    });
   }
 }
 /* =====================================================================================================================================================================*/
@@ -257,19 +327,36 @@ generateProof = (e) => {
             </div>
           
 <div>
-<div className="mb-3">
-<div className="mb-3" />
+<div className="mb-3"><div className="mb-3" />
 <input className="form-control" type="text" name="secretKey" id="secretKey" onChange={this.handleSecretKey} placeholder="Enter your Secret Key" />
+<div className="mb-3" />
+
+
 <input className="form-control" type="text" name="voteKey" id="voteKey" onChange={this.handleChange} placeholder="Enter your Vote Key" />
+
+<div className="mb-3" />
+
 <input type="file" id="fileGetter_Hash" onChange={this.getZokFile}></input>  
+
+
 <div className="mb-3" />
 <Button variant="btn btn-outline-info d-block w-100" onClick={this.compileZok}> Compile Circuit </Button>
 <div className="mb-3" />
-<Button variant="btn btn-outline-info d-block w-100" disabled={!this.state.fileCompiled} onClick={this.generateProof}> {this.state.proofGenerated ? 'Regenerate' : 'Generate Proof'}</Button>
+
+
+<input type="file" id="fileGetter_Member" onChange={this.getProvingKey}></input>  
 <div className="mb-3" />
-<Button variant="btn btn-outline-success d-block w-100" disabled={!this.state.proofGenerated} onClick={this.submitVote}> {this.state.proofGenerated ? 'Submit Vote' : 'Cannot vote without a proof'}</Button>
+<Button variant="btn btn-outline-info d-block w-100"  disabled={this.state.membershipGenerator == null} onClick={this.generateProof}> {!this.state.fileCompiled ? 'Compile Circuit first' : 'Generate Proof'}</Button>
 <div className="mb-3" />
+
+
+<Button variant="btn btn-outline-success d-block w-100" disabled={!this.state.proofGenerated} onClick={this.submitVote}> {this.state.proofGenerated ? 'Submit Vote' : 'Generate Proof first'}</Button>
+<div className="mb-3" />
+
+
 <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.getAccounts}>{this.state.accountLoaded ? 'Refresh Accounts' : 'Get Accounts'}</Button></div>
+
+
 </div>
            
             <div className="mb-3" />

@@ -3,6 +3,8 @@ import './assets/css/styles.css';
 import {Component} from 'react';
 import {useRoutes} from './routes';
 import { BrowserRouter, Link, Switch, Route, Router} from 'react-router-dom';
+import {Button} from 'react-bootstrap';
+import Select from 'react-select';
 import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
 //import {useState, setState} from 'react';
 import {Election, Accounts, web3, iniAccounts} from './components/web3_utility';
@@ -16,7 +18,10 @@ class App extends Component {
         electionName: "John Doe",
         candidateA: "john.doe@test.com",
         candidateB: "",
-        account: 0
+        account: null,
+        accountSelected: false,
+        accountList: [],
+        accountLabels: [{}]
       };
       this.handleChange = this.handleChange.bind(this);
       this.conductElection = this.conductElection.bind(this);
@@ -62,6 +67,32 @@ class App extends Component {
    
       console.log("End of Conduct \n");
   }
+     /* =========================================== ACCOUNT MANAGEMENT ==================================================================== */
+   /* Click button 'Get Accounts' => Async retrieve accounts via web3 utility*/
+   getAccounts = async (e) => {
+    if( e !== undefined) {e.preventDefault();}
+    if(!this.state.accountLoaded){
+   console.log("Retrieving Accounts from Blockchain.");
+   iniAccounts().then((acc) => { 
+     this.setState({accountList : Accounts});
+     this.setState({accountLoaded: true});
+     var labels = new Array();
+     for(var i =0; i < Accounts.length; i++){
+       var x = {label : Accounts[i], "value" : i};
+       labels.push(x);
+     }
+     this.setState({accountLabels : labels});
+     console.log(this.state.accountLabels);
+   });
+ }
+}
+ /* New Account Address selected in dropdown => Change state variable */
+ handleAccountChange = (e) => {
+   //e.preventDefault();
+   this.setState({account: e.value});
+   this.setState({accountSelected: true});
+   console.log("Account selected: " + this.state.accountList[e.value]);
+ }
   render() {
     
     return (
@@ -95,8 +126,28 @@ class App extends Component {
         <input className="form-control" onChange={this.handleChange} value={this.state.electionName} type="text" name="electionName" placeholder="Election Name" id="name" />
         <input className="form-control" onChange={this.handleChange} value = {this.state.candidateA} type="text" placeholder="Candidate A" name="candidateA" id="candidateA" />
         <input className="form-control" onChange={this.handleChange} value={this.state.candidateB} type="text" placeholder="Candidate B" name="candidateB" id="candidateB" /></div>
-        <div className="mb-3"><input className="form-control" type="number" id="account" name="account" onChange = {this.handleChange} placeholder="Enter the Account index" /></div>
-      <div className="mb-3"><button className="btn btn-outline-secondary d-block w-100" type="submit" onClick={this.conductElection}>&nbsp;Conduct Election</button></div><a className="forgot" href="#">Rayyan Jafri</a>
+        <div className="mb-3">
+        <div><p>Select an Account: </p> 
+                <Select  label="Select an Account"
+                        theme={(theme) => ({
+                                ...theme,
+                                borderRadius: 0,
+                                colors: {
+                                ...theme.colors,
+                                text: 'orangered',
+                                neutral0: 'black',
+                                primary25: 'hotpink',
+                                primary: 'black',
+                              },
+                        })}
+                        options={this.state.accountLabels} onChange={this.handleAccountChange}/>
+
+            </div>
+            </div>
+      <div className="mb-3"><Button variant="btn btn-outline-success d-block w-100" onClick={this.conductElection} disabled={this.state.account == null}>{this.state.account == null ? 'Select an Account first':'Conduct Election'}</Button></div><a className="forgot" href="#">Rayyan Jafri</a>
+
+      <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.getAccounts}>{this.state.accountLoaded ? 'Refresh Accounts' : 'Get Accounts'}</Button>
+                      
     </form>
   </section>
   <transactionresult />
