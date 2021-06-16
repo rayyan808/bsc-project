@@ -233,7 +233,6 @@ generateProof = async (e) => {
        }  
        console.log("Your direction selector: " + dirSelector + "\n Your sibling nodes: " + siblingNodes);
        console.log("Computing a witness and then generating a proof of membership for you.");
-
       initialize().then((zkProvider) => {
        console.log("MembershipTest(" + this.state.secretKey + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
       const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, merkleRoot, dirSelector, siblingNodes]);
@@ -242,22 +241,28 @@ generateProof = async (e) => {
       this.setState({generatedWitness: witness});
       console.log("End of Witness Conduct \n");
       }).catch((err) => {
-          console.log("Error caught during witness computation:" + err);
+          console.log("Error caught during witness computation: " + err);
+          this.setState({generatedWitness: null});
       }).finally(() => {
         console.log("Async Witness Op concluded.");
-      /* Only after witness computation, begin proof generation*/
-      initialize().then((zkProvider) => {
-        console.log("Conducting Proof Generation")
-      let localProof = zkProvider.generateProof(this.state.membershipGenerator.program, this.state.generatedWitness, this.state.provingKey);
-      console.log("your local proof: " + localProof);
-      this.setState({proof:localProof}); 
-      }).catch((err) => {
-        console.log("Error during Proof Generation: " + err);
-      }).finally( () => {
-        console.log("Conduct Finished.")
-      });
-    });
-  }
+                /* Only after witness computation, begin proof generation*/
+                if(this.state.generatedWitness != null){
+                        initialize().then((zkProvider) => {
+                        console.log("Conducting Proof Generation")
+                        console.log("Your program: " + this.state.membershipGenerator.program);
+                        let localProof = zkProvider.generateProof(this.state.membershipGenerator.program, this.state.generatedWitness, this.state.provingKey);
+                        console.log("your local proof: " + localProof);
+                        this.setState({proof:localProof}); 
+                        }).catch((err) => {
+                        console.log("Error during Proof Generation: " + err);
+                        }).finally( () => {
+                        console.log("Conduct Finished.")
+                      });
+    } else {
+      console.log("You provided an invalid combination of secretKey and VoteKey, thus the proof could not be generated.");
+    }
+  });
+}
 }
 /* =====================================================================================================================================================================*/
     render () {
