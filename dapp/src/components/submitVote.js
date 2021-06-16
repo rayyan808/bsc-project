@@ -179,11 +179,11 @@ getProvingKey = (event) => {
   const file = event.target.files[0];
   //console.log('files: ' + file);
   const reader = new FileReader();
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
   reader.addEventListener('load', (e) => {
-    const buffer = reader.result;
+    const buffer = new Uint8Array(reader.result);
     console.log("Data loaded successfully");
-    this.setState({provingKey: buffer.toString()/*CHANGED*/});
+    this.setState({provingKey: buffer});
   });
 }
 generateProof = async (e) => {
