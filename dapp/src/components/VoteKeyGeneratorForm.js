@@ -13,6 +13,7 @@ class VoteKeyGeneratorForm extends Component {
         this.state = {
             secretKey: null,
             voteKey: null,
+            identifier: null,
             account: null,
             accountList: Accounts,
             voteKeyGenerator: null,
@@ -93,7 +94,8 @@ class VoteKeyGeneratorForm extends Component {
         //@TODO: Convert hashABI into direct JSON read
         console.log("Computing Witness fo")
         console.log("COMPILER ZOK-JS: " + metadata.version)
-        let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,"0"]]);
+        //let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,this.state.identifier]]); //PRODUCTION
+        let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,"0"]]); //DEBUG
         var rawString = computationResult.output.trim();
         console.log("raw string trimmed: " + rawString);
         rawString = rawString.replace("[", "");rawString = rawString.replace("]", ""); 
@@ -108,7 +110,7 @@ class VoteKeyGeneratorForm extends Component {
     // let vk = MiMCHash(sk);
 
     }
-    /**
+    /** 
      * 
      * @param {event object recieved from onClick} e 
      * Submits the Vote Key to the chain (Secret Key never leaves the DApp)
@@ -181,7 +183,7 @@ class VoteKeyGeneratorForm extends Component {
                     <div className="mb-3" />
                     <div className="mb-3"><input className="form-control" type="password" id="secretKey" name="secretKey" onChange = {this.handleChange} placeholder="Enter a Secret Key" /></div>
 
-                    <div className="mb-3"><input className="form-control" type="number" id="account" name="account" onChange = {this.handleChange} placeholder="Enter the Account index" /></div>
+                    <div className="mb-3"><input className="form-control" type="text" id="identifier" name="identifier" onChange = {this.handleChange} placeholder="Enter an Identifier" /></div>
                     <input type="file" id="fileGetter_Hash" onChange={this.getZokFile}></input>        
                     {/*<input type="file" id="fileGetter_Hash" onChange={this.getHashBinary}></input> */ }
                     <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.compileZok}>Compile </button></div>

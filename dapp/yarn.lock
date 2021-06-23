@@ -3194,6 +3194,18 @@ big.js@^5.2.2:
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
+bigint-crypto-utils@^3.0.7:
+  version "3.0.14"
+  resolved "https://registry.yarnpkg.com/bigint-crypto-utils/-/bigint-crypto-utils-3.0.14.tgz#fe9e7934bbf73bc09dce85c833aebb8074ba03fa"
+  integrity sha512-LVLUcjtzznoEMU+v1WEo+XsBZTPOMGZsJi8n+lQ4ufv/20448lm+HeO/p3dKlqH7C3pdsFLHnsUpbI/t9GbB/A==
+  dependencies:
+    bigint-mod-arith "^3.0.0"
+
+bigint-mod-arith@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/bigint-mod-arith/-/bigint-mod-arith-3.0.0.tgz#cad551940ae2c844968018195512d060ce9c5f96"
+  integrity sha512-fwQZhVES5WGfQZCKS5IwBaOZOFA5A7d9tfEeXve9896EJK5ijJCCfPY8cjgFLDjfEZkGWdBBbl/7Nt3k1DJK7Q==
+
 bignumber.js@^9.0.0:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
@@ -5263,6 +5275,11 @@ esrecurse@^4.1.0, esrecurse@^4.3.0:
   integrity sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==
   dependencies:
     estraverse "^5.2.0"
+
+esserializer@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/esserializer/-/esserializer-1.0.6.tgz#6b9bbab529e3cf2f5e8740f45fc1ec528c31becb"
+  integrity sha512-4sPDknaMW14Zng/fNAm3WVSoP3JeGNtaX0ICoA3wH1FZ+vxSRAGSHlWIsWWIs9LyukSUnbPS+/wCRMKPK7MamQ==
 
 estraverse@^4.1.1:
   version "4.3.0"
@@ -7615,6 +7632,13 @@ jsesc@~0.5.0:
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
 
+json-bigint@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/json-bigint/-/json-bigint-1.0.0.tgz#ae547823ac0cad8398667f8cd9ef4730f5b01ff1"
+  integrity sha512-SiPv/8VpZuWbvLSMtTDU8hEfrZWg/mH/nV/b4o0CYbSxu1UIQPLdwKOCIyLQX+VIPO5vrLX3i8qtqFyhdPSUSQ==
+  dependencies:
+    bignumber.js "^9.0.0"
+
 json-buffer@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/json-buffer/-/json-buffer-3.0.0.tgz#5b1f397afc75d677bde8bcfc0e47e1f9a3d9a898"
@@ -8938,6 +8962,13 @@ p-try@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
+
+paillier-bigint@^3.2.3:
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/paillier-bigint/-/paillier-bigint-3.2.3.tgz#19fc6b695b71d60a0af43f0f3870fd07d1336749"
+  integrity sha512-Came9woOjbMfxNKRFUw7gICCy7gqlMlsMarRb+KYrNcz1S8Q/xj/T95Zpx4sDb31o9zasJBWT8NDaoC6JW49MQ==
+  dependencies:
+    bigint-crypto-utils "^3.0.7"
 
 pako@~1.0.5:
   version "1.0.11"

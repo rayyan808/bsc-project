@@ -51,7 +51,6 @@ contract Election {
     uint256[] internal merkleArray;
     string[] public publicKey;
     Candidate[] public candidates;
-    //string[]  public publicKey;
     uint256 public merkleRoot;
     /* The election starters public key */
     uint public terminateElection;
@@ -141,6 +140,7 @@ contract Election {
             }
             emit Debug(voteKey);
     }   
+    //@TODO: Add require to prevent multiple pushes
     function pushPublicKey(string memory n, string memory g) public {
         publicKey.push(n); publicKey.push(g);
     }

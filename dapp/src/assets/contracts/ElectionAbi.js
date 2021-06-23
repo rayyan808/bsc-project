@@ -1,6 +1,6 @@
 
-export const ELECTION_ADDRESS = '0xC497Ee29641C04D267173d31f4d842283162FDcD';
-export const ElectionAbi =[
+export const ELECTION_ADDRESS = '0x9c687B2762808cbf74f37a1D16B32E9352a1096F';
+export const ElectionAbi =  [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -43,9 +43,9 @@ export const ElectionAbi =[
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint256[]",
         "name": "tallyCount",
-        "type": "uint256"
+        "type": "uint256[]"
       }
     ],
     "name": "AnnounceResult",
@@ -111,11 +111,6 @@ export const ElectionAbi =[
         "internalType": "string",
         "name": "name",
         "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "voteCount",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -179,6 +174,26 @@ export const ElectionAbi =[
     "constant": true
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "publicKey",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
     "inputs": [],
     "name": "terminateElection",
     "outputs": [
@@ -216,6 +231,43 @@ export const ElectionAbi =[
     "inputs": [
       {
         "internalType": "string",
+        "name": "n",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "g",
+        "type": "string"
+      }
+    ],
+    "name": "pushPublicKey",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPublicKey",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "n",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "g",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
         "name": "inputName",
         "type": "string"
       },
@@ -243,8 +295,28 @@ export const ElectionAbi =[
   {
     "inputs": [
       {
+        "internalType": "uint256[2]",
+        "name": "a",
+        "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint256[2][2]",
+        "name": "b",
+        "type": "uint256[2][2]"
+      },
+      {
+        "internalType": "uint256[2]",
+        "name": "c",
+        "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint256[1]",
+        "name": "input",
+        "type": "uint256[1]"
+      },
+      {
         "internalType": "uint256",
-        "name": "voteVal",
+        "name": "delegate",
         "type": "uint256"
       }
     ],
@@ -256,9 +328,9 @@ export const ElectionAbi =[
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "voteKey",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "str",
+        "type": "string"
       }
     ],
     "name": "getMerkleInfo",
@@ -280,7 +352,7 @@ export const ElectionAbi =[
       },
       {
         "internalType": "uint256",
-        "name": "merkleRoot",
+        "name": "mkRoot",
         "type": "uint256"
       }
     ],
@@ -307,26 +379,6 @@ export const ElectionAbi =[
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "alpha",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "testHash",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function",
-    "constant": true
   },
   {
     "inputs": [],

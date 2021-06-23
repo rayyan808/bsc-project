@@ -5,47 +5,38 @@ import {useRoutes} from './routes';
 import { BrowserRouter, Link, Switch, Route, Router} from 'react-router-dom';
 import {Button} from 'react-bootstrap';
 import Select from 'react-select';
+import * as paillierBigint from 'paillier-bigint';
 import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
 //import {useState, setState} from 'react';
 import {Election, Accounts, web3, iniAccounts} from './components/web3_utility';
 import {iniZokrates, zkProvider} from './components/zkProvider';
 const Abi = require ('./assets/contracts/electionAbi.json');
+const ESSerializer = require('esserializer');
+var JSONbig = require('json-bigint');
 //const { initialize } = require('zokrates-js');
 class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-        electionName: "John Doe",
-        candidateA: "john.doe@test.com",
-        candidateB: "",
+        electionName: "SNARK-Web Election",
+        candidateA: "Donald Trump",
+        candidateB: "Kim Jong-Un",
         account: null,
         accountSelected: false,
         accountList: [],
-        accountLabels: [{}]
+        accountLabels: [{}],
+        publicKeyN: "",
+        publicKeyG: "",
+        privateKey: null,
+        privateKeyFile: {}
       };
       this.handleChange = this.handleChange.bind(this);
       this.conductElection = this.conductElection.bind(this);
+      this.generateKeyPair = this.generateKeyPair.bind(this);
       //this.useRoutes = this.useRoutes.bind(this);
       iniAccounts();
     iniZokrates();
     }
-  async iniDApp() 
-  {
-    /*try {
-      Accounts = await web3.eth.getAccounts();
-     } catch(err){
-       console.log("Error initializing Accounts");
-     }
-     try {
-       console.log(ElectionAbi);
-      Election = new web3.eth.Contract(Abi,ELECTION_ADDRESS);
-      console.log(Election.methods);
-     // Election = await eContract.at(ELECTION_ADDRESS/*  , 'hex address of contract');
-     } catch(err){
-       console.log("Error initializing Election Contract :" + err);
-     } */
-    //iniZokrates();
-  }  
 // 
    handleChange = (e) => {
     const val  = e.target.value;
@@ -54,18 +45,83 @@ class App extends Component {
     });
     console.log('State: ' + e.target.name + ' Value:' + val);
     };
+    /* <==================================== PAILLER ENCRYPTION  ==========================================================> */
+    generateKeyPair = async (e) => {
+      e.preventDefault();
+      const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(1024)
+      const privateKeyJSON = JSONbig.stringify(privateKey); const publicKeyJSON = JSONbig.stringify(publicKey);
+      //const y = new paillierBigint.PublicKey(publicKey.n, publicKey.g);
+      const x = new paillierBigint.PrivateKey(privateKey.lambda,privateKey.mu, publicKey);
+      //let privateKeyStore = ESSerializer.serialize(x);
+      //When owner decrypts and finds out the solution, he sends a zero-knowledge proof that hisResult == the actual result
+      //def main(private secretKey, )
+      this.setState({publicKeyN: publicKey.n, publicKeyG : publicKey.g, 
+        privateKey: privateKeyJSON,   
+        keyGenerated: true});
+
+      console.log(this.state.publicKeyG);
+      this.generateDownload(privateKeyJSON); //Allow the owner to download their private key for later usage (decrypt )
+    }
+    paillierTest = async () => {
+      // (asynchronous) creation of a random private, public key pair for the Paillier cryptosystem
+      const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(2048)
+    
+      // Optionally, you can create your public/private keys from known parameters
+      // const publicKey = new paillierBigint.PublicKey(n, g)
+      // const privateKey = new paillierBigint.PrivateKey(lambda, mu, publicKey)
+    
+      const m1 = 12345678901234567890n
+      const m2 = 5n
+    
+      // encryption/decryption
+      const c1 = publicKey.encrypt(m1)
+      console.log(privateKey.decrypt(c1)) // 12345678901234567890n
+    
+      // homomorphic addition of two ciphertexts (encrypted numbers)
+      const c2 = publicKey.encrypt(m2)
+      const encryptedSum = publicKey.addition(c1, c2)
+      console.log(privateKey.decrypt(encryptedSum)) // m1 + m2 = 12345678901234567895n
+    
+      // multiplication by k
+      const k = 10n
+      const encryptedMul = publicKey.multiply(c1, k)
+      console.log(privateKey.decrypt(encryptedMul)) // k · m1 = 123456789012345678900n
+    }
+    /* ================================================ FILE MANAGEMENT     =================================================> */
+    generateDownload = (json) => {
+      const blob=new Blob([json],{type:'application/json'})
+      // If we are replacing a previously generated file we need to
+      // manually revoke the object URL to avoid memory leaks.
+      if (this.state.privateKeyURL !== null) {
+        window.URL.revokeObjectURL(this.state.privateKeyURL);
+      }
+  
+      this.setState({privateKeyURL: window.URL.createObjectURL(blob)});
+
+    };
+    /* ================================================ SMART CONTRACT CALL =================================================> */
    conductElection = async (e) => {
     e.preventDefault();
+    if(this.state.electionName !== undefined && this.state.candidateA !== undefined && this.state.candidateB !== null && this.state.publicKey !== null){
     //await this.iniDApp();
     console.log("Sending request to Blockchain network \n");
     console.log("Account initialized: " + Accounts[0]);
     console.log(this.state.electionName +  "\n");
-    
+
+    console.log("Invoking conductElection on the blockchain.")
     await Election.methods
       .conductElection(this.state.electionName, 3, this.state.candidateA, this.state.candidateB)
-      .send({ from: Accounts[this.state.account], gas: 400000 });
-   
+      .send({ from: Accounts[this.state.account], gas: 4000000 }).then(async (receipt) => {
+        console.log(receipt);
+      });
+      console.log("Pushing your publickey to the blockchain. \n N: " + this.state.publicKeyN + "\n G: " + this.state.publicKeyG);
+        await Election.methods.pushPublicKey(this.state.publicKeyN.toString(), this.state.publicKeyG.toString()).send({from: Accounts[this.state.account], gas:4000000 }).then((receipt) => {
+          console.log(receipt);
+        });
       console.log("End of Conduct \n");
+    } else {
+      console.log("Enter values for Election Name, Candidates and Generate a Keypair first.");
+    }
   }
      /* =========================================== ACCOUNT MANAGEMENT ==================================================================== */
    /* Click button 'Get Accounts' => Async retrieve accounts via web3 utility*/
@@ -73,7 +129,8 @@ class App extends Component {
     if( e !== undefined) {e.preventDefault();}
     if(!this.state.accountLoaded){
    console.log("Retrieving Accounts from Blockchain.");
-   iniAccounts().then((acc) => { 
+   await iniAccounts().then(( ) => { 
+     if(Accounts !== undefined){
      this.setState({accountList : Accounts});
      this.setState({accountLoaded: true});
      var labels = new Array();
@@ -83,6 +140,9 @@ class App extends Component {
      }
      this.setState({accountLabels : labels});
      console.log(this.state.accountLabels);
+    } else {
+      console.log("Could not connect to blockchain. Check if Ganache is running. Is your contract address configured?")
+    }
    });
  }
 }
@@ -93,6 +153,7 @@ class App extends Component {
    this.setState({accountSelected: true});
    console.log("Account selected: " + this.state.accountList[e.value]);
  }
+ /* ========================================================================================================================================= */
   render() {
     
     return (
@@ -145,7 +206,12 @@ class App extends Component {
             </div>
             </div>
       <div className="mb-3"><Button variant="btn btn-outline-success d-block w-100" onClick={this.conductElection} disabled={this.state.account == null}>{this.state.account == null ? 'Select an Account first':'Conduct Election'}</Button></div><a className="forgot" href="#">Rayyan Jafri</a>
-
+      <div className="mb-3">
+      <Button variant="btn btn-outline-primary d-block w-100" disabled={this.state.publicKey == null}onClick={() => {navigator.clipboard.writeText(this.state.publicKey)}}>Copy Public Key</Button> </div>
+      <Button variant="btn btn-outline-danger d-block w-100" disabled={this.state.privateKey == null} onClick={() => {navigator.clipboard.writeText(this.state.privateKey)}}>Copy Private Key</Button> 
+      <div className="mb-3"></div>
+      <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.generateKeyPair}>{this.state.keyGenerated ? 'Get new key pair' : 'Generate Keypair'}</Button>             
+      <div className="mb-3"></div>      
       <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.getAccounts}>{this.state.accountLoaded ? 'Refresh Accounts' : 'Get Accounts'}</Button>
                       
     </form>
