@@ -1,6 +1,8 @@
 pragma solidity ^0.8.0;
 
 import "./MiMC.sol";
+import "./verifier.sol";
+import "./utility.sol";
 /* PERSONEL NOTES:
 Each invokation will cost Gas (measured in computational steps), the transaction
 of incrementing a candidate vote and losing right to vote (again) is
@@ -29,34 +31,29 @@ When contract is deployed, the state change is appended onto the blockchain. */
 contract Election {
     struct Candidate {
         string name;
-        uint voteCount;
+        uint[] votes; /* A list of encrypted vote values for this candidate */
     }
     /* Each address in Address Space is mapped to an empty Voter struct with default values */
     struct Voter {
-        uint value; //Default value is 0 
-        bool authorized; 
-        bool voted;//Default value is false
-        bool submittedVoteKey;
-    }
-    struct VoteKey {
-        uint256 value;
-        bool modified;
+        bool authorized; /* So an owner has control over which public addresses may invoke functions */
+        bool submittedVoteKey; /* So we can prevent multiple voteKeys from one address */
+        uint weight; /* The on-chain calculated weight of the voter*/
     }
     string public name;
     address public owner;
     uint public activeVoters;
+    //@TODO: Convert state variable to enum or int for comparison in require
     string public currentState;
     // Key: Address, Value: Voter 
     //i.e Map a Voter object to ALL addresses
     mapping(address => Voter) voters;
-    mapping(address => VoteKey) voteKeys;
-
-    VoteKey[] internal voteKeyArray;
+    uint256[] internal voteKeyArray;
     uint256[] internal merkleArray;
+    string[] public publicKey;
     Candidate[] public candidates;
-    
+    //string[]  public publicKey;
     uint256 public merkleRoot;
-
+    /* The election starters public key */
     uint public terminateElection;
     /* Everytime the stage transitions, an announcement is made to all suscribers.
     STATES: VOTEKEY-GENERATION => VOTE => END */
@@ -65,7 +62,7 @@ contract Election {
     for, in future updates this address will be replaced by a ZKP */
     event AnnounceVote(string candidate, address proofOfMembership);
     /* Emit an event every time a vote tally is called. (DEBUG) */
-    event AnnounceResult(string candidate, uint tallyCount);
+    event AnnounceResult(string candidate, uint[] tallyCount);
     /* Create an Event each time the owner authorizes a voter */
     event AnnounceAuth(address authorizedUser);
     event Debug(uint256 s);
@@ -88,12 +85,12 @@ contract Election {
         /* Find the power of 2 closest or equal to the length, if equal do nothing */
         while(pow <= voteKeyArray.length){ if(pow == voteKeyArray.length) { isPowerOf2 = true; break; } else { pow = pow *2; } }
         /* If index isn't a power of two, we pump it with static public vote keys */
-        while(pow != voteKeyArray.length && isPowerOf2 == false){ voteKeyArray.push((VoteKey(1337, true))); pow--; }
+        while(pow != voteKeyArray.length && isPowerOf2 == false){ voteKeyArray.push(1337); pow--; }
         /* For each voteKey struct present, transfer the hashed value into the Merkle Array */
         for(uint i =0; i < voteKeyArray.length; i++){
             //leaf = MiMC.MiMC_Hash([voteKeyArray[i],voteKeyArray[i+1]]);
             emit Debug(tempValDebug);
-            tempValDebug = voteKeyArray[i].value;
+            tempValDebug = voteKeyArray[i];
             merkleArray.push(tempValDebug);
         }
         uint nodeCount=0;
@@ -124,18 +121,17 @@ contract Election {
     }
     /* Use Case (DApp)
     When a user inputs a secret key (SK) and clicks the 'Join Vote' button,
-    SK is locally hashed using MiMC before being sent as a VOTE KEY*/
+    SK is locally hashed using MiMC before being sent as a VOTE KEY
+    The user is only able to push 1 vote-key per public address (to prevent double-registration) */
     function pushVoteKey(string memory str) public {
-        uint256 voteKey = stringToUint(str);
+        uint256 voteKey = utility.stringToUint(str);
         /* check double-vote and if votekey generation stage is active*/
        // require(currentState == "VOTEKEY-GENERATION");
         /* Make sure the voter has been authorized and that they haven't already generated a key*/
         //require(/*voters[msg.sender].authorized == true &&*/ voters[msg.sender].submittedVoteKey == false);
         /* Mapping Implementation */
-        voteKeys[msg.sender].value = voteKey;
-        voteKeys[msg.sender].modified = true;
         /* Array Implementation */
-        voteKeyArray.push(VoteKey(voteKey, true));
+        voteKeyArray.push(voteKey);
         activeVoters++;
         /* Check if our voter count exceeded or reached a power of 2*/
         if(activeVoters == 4) { 
@@ -145,48 +141,50 @@ contract Election {
             }
             emit Debug(voteKey);
     }   
-   function stringToUint(string memory s) private pure returns (uint result) {
-        bytes memory b = bytes(s);
-        uint i;
-        result = 0;
-        for (i = 0; i < b.length; i++) {
-            uint c = uint(uint8(b[i]));
-            if (c >= 48 && c <= 57) {
-                result = result * 10 + (c - 48);
-            }
-        }
+    function pushPublicKey(string memory n, string memory g) public {
+        publicKey.push(n); publicKey.push(g);
+    }
+    function getPublicKey() public view returns(string memory n, string memory g){
+        return (publicKey[0], publicKey[1]);
     }
     function conductElection(string memory inputName, uint8 treeDepth, string memory candidateA, string  memory candidateB) public  {
         require(treeDepth >= 1 && treeDepth <= 33); //33 is the maximum depth of the tree allowed
-        
+        //publicKey = pubKey; /* Serialization of Public Key class as a string, Client may de-serialize for encryption*/
+       // publicKey.push(n); publicKey.push(g);
         owner = msg.sender;
         name = inputName;
-        candidates.push(Candidate(candidateA,0));
-        candidates.push(Candidate(candidateB,0));
+        uint256[] memory empty;
+        candidates.push(Candidate(candidateA,empty));
+        candidates.push(Candidate(candidateB,empty));
         currentState = "VOTEKEY-GENERATION";
         emit AnnounceNewStage(currentState);
     }
      /* Inputs: voteVal, Proof of Membership */
-     function submitVote(uint voteVal) public {
+     function submitVote( uint[2] memory a,
+            uint[2][2] memory b,
+            uint[2] memory c, uint[1] memory input, uint delegate) public {
+    	/* Verify Voter rights and if they have voted previously */
+        require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
+        /* @TODO: Replace this with nullifier check */ 
+        //require(voters[msg.sender].voted == false, "You have already voted"); 
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
-    	/* Verify Voter rights and if they have voted previouslys*/
-        require(voters[msg.sender].authorized == true);
-        require(voters[msg.sender].voted == false);
+        /* Verify the Proof of Membership */
+        Verifier verifier = new Verifier();
+        require(verifier.verifyTx(a, b, c, input));
         /* Invoke the Verifier contract with Proof of Membership as input */
             //Assign Vote Value to the voter
-            voters[msg.sender].value = voteVal;
+            candidates[delegate].votes.push(voters[msg.sender].weight);
             //If the voter is authorized, then the vote has a state change
-            /* @TODO: Implement Additive Pailler */
-          //  candidates[voteVal].voteCount += voters[msg.sender].rights;
             /* Emit an event on the block to notify a new vote using candidate who got the votes name and the voters proof of Membership*/
-            emit AnnounceVote(candidates[voteVal].name, msg.sender);
+            emit AnnounceVote(candidates[delegate].name, msg.sender);
             activeVoters--;
             if(activeVoters == 0){ currentState = "END"; }
         
     } 
-    function getMerkleInfo(uint256 voteKey) public view returns(uint256 targetIndex, uint256 firstLayerSize, uint256 [] memory entireMerkleArray, uint256 merkleRoot) {
+    function getMerkleInfo(string memory str) public view returns(uint256 targetIndex, uint256 firstLayerSize, uint256 [] memory entireMerkleArray, uint256 mkRoot) {
     	uint index = 1337;
+        uint256 voteKey = utility.stringToUint(str);
     	for(uint i =0; i< merkleArray.length; i++){
     		if(voteKey == merkleArray[i]){
     		 index = i;
@@ -207,19 +205,14 @@ contract Election {
     }
     function tallyVotes() public {
     	/* @TODO: Add a loop for dynamic candidates*/
-        emit AnnounceResult(candidates[0].name, candidates[0].voteCount);
-        emit AnnounceResult(candidates[1].name, candidates[1].voteCount);
+        emit AnnounceResult(candidates[0].name, candidates[0].votes);
+        emit AnnounceResult(candidates[1].name, candidates[1].votes);
     }
     /* Here will be the custom weight function responsible for calculating a vote weight
     based on User financial investment or something similar */
     function calculateVoteWeight(address citizen) private {
         /* (TEMPORARY) HARD-CODED VALUE OF 1 */
-        voters[citizen].value = 1;
-    }
-    function testHash(uint256[] memory alpha) public pure returns(uint256) {
-        uint256 hashed = MiMC.MiMC_Hash(alpha);
-       // emit Debug(hashed);
-        return hashed;
+        voters[citizen].weight = 1;
     }
     /* ====================== WEB3 HELPER GETTERS ====================*/
     function getCandidates() public view returns(string[] memory){
