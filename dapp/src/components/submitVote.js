@@ -10,6 +10,7 @@ import {Election, Accounts, web3, iniAccounts} from './web3_utility';
 import { withRouter } from 'react-router-dom';
 import { initialize } from 'zokrates-js';
 import * as paillierBigint from 'paillier-bigint';
+import * as bigintConversion from 'bigint-conversion'
 var JSONbig = require('json-bigint');
 const candidateLabels =[{label:"Trump", value: 0 },{label:"Obama", value: 1 }];
 class SubmitVoteForm extends Component {
@@ -69,8 +70,10 @@ class SubmitVoteForm extends Component {
         console.log("Sending your Encrypted Vote to the blockchain..");
       } try {
           console.log("[DEBUG]: voteValue: " + voteValue + "publicKey: " + this.state.publicKey); //DEBUG
+          var keys = Object.keys(this.state.proof.proof); var keys2 = Object.keys(this.state.proof.inputs);
+          console.log("[DEBUG] Proof attributes: " + this.state.proof + "\n [2]: " + keys + "\n " + keys2);
           let receipt = await Election.methods
-          .submitVote(this.state.proof.proof, this.state.proof.inputs, voteValue)
+          .submitVote(this.state.proof.proof.a,this.state.proof.proof.b, this.state.proof.proof.c, this.state.proof.inputs, voteValue)
           .send({ from: this.state.accountList[this.state.account], gas: 400000 });
           console.log("[submitVote] Transaction successful: " + receipt);
         } catch(err){
@@ -203,10 +206,12 @@ generateProof = async (e) => {
        /*===================================================== GET PUBLIC KEY ====================================================================*/
        let publicKey = await Election.methods.getPublicKey().call({ from: this.state.accountList[this.state.account], gas: 400000 });
        if(publicKey !== undefined){
-            console.log("[getPublicKey] Recieved: " + publicKey.n + "\n " + publicKey.g);
-            const json = JSONbig.parse(publicKey);
-            console.log("JSON: " + json);
-            const pk = new paillierBigint.PublicKey(json.n, json.g);
+            /* Utilize this library to parse our string values from ETH as Javascript BigInts */
+            var n = bigintConversion.textToBigint(publicKey.n);
+            var g = bigintConversion.textToBigint(publicKey.g);
+
+            console.log("[getPublicKey] Recieved: " + n + "\n " + g);
+            const pk = new paillierBigint.PublicKey(n, g);
             console.log("[getPublicKey] Assigning Public Key to State.");
             this.setState({publicKey: pk});
             console.log("[STATE] publicKey: " + this.state.publicKey);

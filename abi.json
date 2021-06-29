@@ -6,19 +6,28 @@
       "type": "field"
     },
     {
-      "name": "siblingNodeA",
+      "name": "merkleRoot",
       "public": true,
       "type": "field"
     },
     {
-      "name": "siblingNodeB",
+      "name": "directionSelector",
+      "public": false,
+      "type": "array",
+      "components": {
+        "size": 2,
+        "type": "bool"
+      }
+    },
+    {
+      "name": "siblingNodes",
       "public": true,
-      "type": "field"
+      "type": "array",
+      "components": {
+        "size": 2,
+        "type": "field"
+      }
     }
   ],
-  "outputs": [
-    {
-      "type": "bool"
-    }
-  ]
+  "outputs": []
 }

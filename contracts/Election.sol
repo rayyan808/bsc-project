@@ -48,6 +48,7 @@ contract Election {
     //i.e Map a Voter object to ALL addresses
     mapping(address => Voter) voters;
     uint256[] internal voteKeyArray;
+    string[] storage encryptedVotes; 
     uint256[] internal merkleArray;
     string[] public publicKey;
     Candidate[] public candidates;
@@ -162,7 +163,7 @@ contract Election {
      /* Inputs: voteVal, Proof of Membership */
      function submitVote( uint[2] memory a,
             uint[2][2] memory b,
-            uint[2] memory c, uint[1] memory input, uint delegate) public {
+            uint[2] memory c, uint[3] memory input, uint index, string memory delegate) public {
     	/* Verify Voter rights and if they have voted previously */
         require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
         /* @TODO: Replace this with nullifier check */ 
@@ -174,7 +175,7 @@ contract Election {
         require(verifier.verifyTx(a, b, c, input));
         /* Invoke the Verifier contract with Proof of Membership as input */
             //Assign Vote Value to the voter
-            candidates[delegate].votes.push(voters[msg.sender].weight);
+            candidates[index].votes.push(voters[msg.sender].weight);
             //If the voter is authorized, then the vote has a state change
             /* Emit an event on the block to notify a new vote using candidate who got the votes name and the voters proof of Membership*/
             emit AnnounceVote(candidates[delegate].name, msg.sender);

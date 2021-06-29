@@ -1,5 +1,5 @@
 
-export const ELECTION_ADDRESS = '0x9c687B2762808cbf74f37a1D16B32E9352a1096F';
+export const ELECTION_ADDRESS = '0x64221586259c2C920A2bC777B57154dB3d7a7e0E';
 export const ElectionAbi =  [
   {
     "inputs": [],
@@ -94,8 +94,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -114,8 +113,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -128,8 +126,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -142,8 +139,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -156,8 +152,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -170,8 +165,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -190,8 +184,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -204,8 +197,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -261,8 +253,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -310,9 +301,9 @@ export const ElectionAbi =  [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[1]",
+        "internalType": "uint256[3]",
         "name": "input",
-        "type": "uint256[1]"
+        "type": "uint256[3]"
       },
       {
         "internalType": "uint256",
@@ -357,8 +348,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -391,8 +381,7 @@ export const ElectionAbi =  [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   }
 ];
 	

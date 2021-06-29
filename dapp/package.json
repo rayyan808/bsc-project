@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "as-bind": "^0.7.1",
     "assemblyscript": "^0.19.1",
+    "bigint-conversion": "^2.1.12",
     "esserializer": "^1.0.6",
     "json-bigint": "^1.0.0",
     "paillier-bigint": "^3.2.3",
