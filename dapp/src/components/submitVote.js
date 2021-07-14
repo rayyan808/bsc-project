@@ -63,7 +63,8 @@ class SubmitVoteForm extends Component {
      if(a &&  b && c && d){
       try {
          console.log("Encrypting your vote value");
-         voteValue = this.state.publicKey.encrypt(this.state.candidateID);
+         //voteValue = this.state.publicKey.encrypt(this.state.candidateID);
+         voteValue = this.state.candidateID;
       }catch(err){
         console.log("Error during Encryption:" + err); 
       } finally{
@@ -254,7 +255,7 @@ generateProof = async (e) => {
        console.log("Computing a witness and then generating a proof of membership for you.");
       initialize().then((zkProvider) => {
        console.log("MembershipTest(" + this.state.secretKey + ", " + this.state.uniqueID + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
-      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.uniqueID, merkleRoot, dirSelector, siblingNodes]);
+      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.uniqueID, this.state.candidateID, merkleRoot, dirSelector, siblingNodes]);
      //console.log("Your witness result: " + witness); DEBUG
       this.setState({generatedWitness: witness});
       console.log("End of Witness Conduct \n");

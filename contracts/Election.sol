@@ -42,6 +42,7 @@ contract Election {
     string public name;
     address public owner;
     uint public activeVoters;
+    uint[] public identifiers;
     //@TODO: Convert state variable to enum or int for comparison in require
     string public currentState;
     // Key: Address, Value: Voter 
@@ -182,6 +183,7 @@ contract Election {
         require(verifier.verifyTx(a, b, c, input));
             //Candidate Index = input[1], Unique Identifier = input[0]
             candidates[input[1]].votes.push(input[0]);
+            identifiers.push(input[0]);
             /* Emit an event on the block to notify a new vote */
             emit AnnounceVote(candidates[input[1]].name, msg.sender);
             activeVoters--;
