@@ -163,23 +163,27 @@ contract Election {
      /* Input Array: private field  secretKey, field merkleRoot, private bool[2]  directionSelector, field[2] siblingNodes */
      function submitVote( uint[2] memory a,
             uint[2][2] memory b,
-            uint[2] memory c, uint[3] memory input, uint index, string memory delegate) public {
+            uint[2] memory c, uint[4] memory input, uint index, string memory delegate) public {
     	/* Verify Voter rights and if they have voted previously */
         require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
         /* @TODO: Replace this with nullifier check */ 
+        for(uint i=0; i < voteCount; i++){
+            if(input[0] == identifiers[i]){
+                revert("You have already voted. ");
+            }
+        }
         //require(voters[msg.sender].voted == false, "You have already voted"); 
-        
+
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
+
         /* Verify the Proof of Membership */
         Verifier verifier = new Verifier();
         require(verifier.verifyTx(a, b, c, input));
-        /* Invoke the Verifier contract with Proof of Membership as input */
-            //Assign Vote Value to the voter
-            candidates[index].votes.push(voters[msg.sender].weight);
-            //If the voter is authorized, then the vote has a state change
-            /* Emit an event on the block to notify a new vote using candidate who got the votes name and the voters proof of Membership*/
-            emit AnnounceVote(candidates[delegate].name, msg.sender);
+            //Candidate Index = input[1], Unique Identifier = input[0]
+            candidates[input[1]].votes.push(input[0]);
+            /* Emit an event on the block to notify a new vote */
+            emit AnnounceVote(candidates[input[1]].name, msg.sender);
             activeVoters--;
             if(activeVoters == 0){ currentState = "END"; }
         

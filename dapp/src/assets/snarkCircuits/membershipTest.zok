@@ -37,11 +37,11 @@ N ==> Number of Layers -1
 [
     "secretKey", "merkleRoot" 
 ]
+//@TODO: added candidate index
+def main(private field  secretKey, field identifier, field candidateIndex, field field merkleRoot, private bool[2]  directionSelector, field[2] siblingNodes):
 
-def main(private field  secretKey, field merkleRoot, private bool[2]  directionSelector, field[2] siblingNodes):
 
-
-    field currentNode = hash([secretKey,0])
+    field currentNode = hash([secretKey,identifier])
      //Pair hash the secretKey with a static value, select k = 10 (k iterations of Feistel will take place)
     for u32 i in 0..2 do
     //Both If conditions are executed regardless of assertion due to the nature of a circuit and no jumps. 
