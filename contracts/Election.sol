@@ -48,7 +48,7 @@ contract Election {
     //i.e Map a Voter object to ALL addresses
     mapping(address => Voter) voters;
     uint256[] internal voteKeyArray;
-    string[] storage encryptedVotes; 
+    string[] encryptedVotes; 
     uint256[] internal merkleArray;
     string[] public publicKey;
     Candidate[] public candidates;
@@ -160,7 +160,7 @@ contract Election {
         currentState = "VOTEKEY-GENERATION";
         emit AnnounceNewStage(currentState);
     }
-     /* Inputs: voteVal, Proof of Membership */
+     /* Input Array: private field  secretKey, field merkleRoot, private bool[2]  directionSelector, field[2] siblingNodes */
      function submitVote( uint[2] memory a,
             uint[2][2] memory b,
             uint[2] memory c, uint[3] memory input, uint index, string memory delegate) public {
@@ -168,6 +168,7 @@ contract Election {
         require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
         /* @TODO: Replace this with nullifier check */ 
         //require(voters[msg.sender].voted == false, "You have already voted"); 
+        
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
         /* Verify the Proof of Membership */

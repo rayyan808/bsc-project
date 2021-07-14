@@ -20,7 +20,7 @@ class SubmitVoteForm extends Component {
         this.state={
         candidateID: null,candidateName: "None", candidateLoaded: false, candidateList: [],candidateLabels: [{}], //Candidate Props
         account: null, accountList: null, accountLoaded: false, accountSelected: false, //Account Props
-        secretKey: null, voteKey: null, proofGenerated: false, provingKey: null, provingKeySelected: false,//Zero-Knowledge Props
+        secretKey: null, uniqueID: null,  voteKey: null, proofGenerated: false, provingKey: null, provingKeySelected: false,//Zero-Knowledge Props
         membershipGenerator: null, zokFile: null, fileCompiled: false, generatedWitness: null, //Zero-Knowledge Props
         publicKeyN: "", publicKeyG: "", publicKey: null //Encryption Props
       };
@@ -253,8 +253,8 @@ generateProof = async (e) => {
        //console.log("Your direction selector: " + dirSelector + "\n Your sibling nodes: " + siblingNodes); DEBUG
        console.log("Computing a witness and then generating a proof of membership for you.");
       initialize().then((zkProvider) => {
-       console.log("MembershipTest(" + this.state.secretKey + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
-      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, merkleRoot, dirSelector, siblingNodes]);
+       console.log("MembershipTest(" + this.state.secretKey + ", " + this.state.uniqueID + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
+      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.uniqueID, merkleRoot, dirSelector, siblingNodes]);
      //console.log("Your witness result: " + witness); DEBUG
       this.setState({generatedWitness: witness});
       console.log("End of Witness Conduct \n");
@@ -353,6 +353,7 @@ generateProof = async (e) => {
 <div>
 <div className="mb-3"><div className="mb-3" />
 <input className="form-control" type="text" name="secretKey" id="secretKey" onChange={this.handleSecretKey} placeholder="Enter your Secret Key" />
+<input className="form-control" type="text" name="Unique Identifier" id="uniqueID" onChange={this.handleChange} placeholder="Enter your unique identifier" />
 <div className="mb-3" />
 
 
