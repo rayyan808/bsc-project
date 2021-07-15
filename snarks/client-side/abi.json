@@ -6,6 +6,11 @@
       "type": "field"
     },
     {
+      "name": "identifier",
+      "public": true,
+      "type": "field"
+    },
+    {
       "name": "merkleRoot",
       "public": true,
       "type": "field"

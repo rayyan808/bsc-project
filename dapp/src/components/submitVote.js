@@ -11,6 +11,7 @@ import { withRouter } from 'react-router-dom';
 import { initialize } from 'zokrates-js';
 import * as paillierBigint from 'paillier-bigint';
 import * as bigintConversion from 'bigint-conversion'
+import { string } from 'prop-types';
 var JSONbig = require('json-bigint');
 const candidateLabels =[{label:"Trump", value: 0 },{label:"Obama", value: 1 }];
 class SubmitVoteForm extends Component {
@@ -20,7 +21,7 @@ class SubmitVoteForm extends Component {
         this.state={
         candidateID: null,candidateName: "None", candidateLoaded: false, candidateList: [],candidateLabels: [{}], //Candidate Props
         account: null, accountList: null, accountLoaded: false, accountSelected: false, //Account Props
-        secretKey: null, uniqueID: null,  voteKey: null, proofGenerated: false, provingKey: null, provingKeySelected: false,//Zero-Knowledge Props
+        secretKey: null, nullifier: null,  voteKey: null, proofGenerated: false, provingKey: null, provingKeySelected: false,//Zero-Knowledge Props
         membershipGenerator: null, zokFile: null, fileCompiled: false, generatedWitness: null, //Zero-Knowledge Props
         publicKeyN: "", publicKeyG: "", publicKey: null //Encryption Props
       };
@@ -44,7 +45,8 @@ class SubmitVoteForm extends Component {
     }
     /*=====================================================================================================*/
     handleChange = (e) => {
-      const val  = e.target.value;
+      e.preventDefault();
+      const val  = e.target.value.toString();
       this.setState({
         [e.target.name]: val  
       });
@@ -59,29 +61,21 @@ class SubmitVoteForm extends Component {
      e.preventDefault();
      var voteValue;
      //constraints
-     var a = this.state.proof !== null; var  b = this.state.candidateID !== null; var c = this.state.publicKey !== null; var d = this.state.proofGenerated !== null;
-     if(a &&  b && c && d){
-      try {
-         console.log("Encrypting your vote value");
-         //voteValue = this.state.publicKey.encrypt(this.state.candidateID);
-         voteValue = this.state.candidateID;
-      }catch(err){
-        console.log("Error during Encryption:" + err); 
-      } finally{
-        console.log("Sending your Encrypted Vote to the blockchain..");
-      } try {
-          console.log("[DEBUG]: voteValue: " + voteValue + "publicKey: " + this.state.publicKey); //DEBUG
+     var a = this.state.proof !== null; var  b = this.state.candidateID !== null;  var c = this.state.proofGenerated !== null;
+     if(a &&  b && c){ 
+       try {
+          console.log("[DEBUG]: voteValue: " + this.state.candidateID); //DEBUG
           var keys = Object.keys(this.state.proof.proof); var keys2 = Object.keys(this.state.proof.inputs);
           console.log("[DEBUG] Proof attributes: " + this.state.proof + "\n [2]: " + keys + "\n " + keys2);
           let receipt = await Election.methods
-          .submitVote(this.state.proof.proof.a,this.state.proof.proof.b, this.state.proof.proof.c, this.state.proof.inputs, voteValue)
+          .submitVote(this.state.proof.proof.a,this.state.proof.proof.b, this.state.proof.proof.c, this.state.proof.inputs, this.state.candidateID)
           .send({ from: this.state.accountList[this.state.account], gas: 400000 });
           console.log("[submitVote] Transaction successful: " + receipt);
         } catch(err){
           console.log("[submitVote] Error caught during send transaction. :" + err);
         }
       } else {
-        console.log("[submitVote] Parameters not fulfilled. \n proofGenerated: " + d + "\n proof null: " + a + "\n CandidateID :" + b + "\n Public Key: " + c);
+        console.log("[submitVote] Parameters not fulfilled. \n proofGenerated: " + c + "\n proof null: " + a + "\n CandidateID :" + b);
       }
     }
    /* =========================================== CANDIDATE MANAGEMENT ===================================================================*/
@@ -204,10 +198,10 @@ generateProof = async (e) => {
        var merkleArray = []; var targetIndex = 0; var firstLayerSize = 0; var n, g;
        targetIndex = result.targetIndex; firstLayerSize = result.firstLayerSize; merkleArray = result.entireMerkleArray;
        //console.log("Your leaf index:" + targetIndex + "\n First Layer Size: " + firstLayerSize + "\n Merkle Array: " + merkleArray); DEBUG
-       /*===================================================== GET PUBLIC KEY ====================================================================*/
+       /*===================================================== GET PUBLIC KEY ====================================================================
        let publicKey = await Election.methods.getPublicKey().call({ from: this.state.accountList[this.state.account], gas: 400000 });
        if(publicKey !== undefined){
-            /* Utilize this library to parse our string values from ETH as Javascript BigInts */
+            // Utilize this library to parse our string values from ETH as Javascript BigInts 
             var n = bigintConversion.textToBigint(publicKey.n);
             var g = bigintConversion.textToBigint(publicKey.g);
 
@@ -254,8 +248,8 @@ generateProof = async (e) => {
        //console.log("Your direction selector: " + dirSelector + "\n Your sibling nodes: " + siblingNodes); DEBUG
        console.log("Computing a witness and then generating a proof of membership for you.");
       initialize().then((zkProvider) => {
-       console.log("MembershipTest(" + this.state.secretKey + ", " + this.state.uniqueID + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
-      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.uniqueID, this.state.candidateID, merkleRoot, dirSelector, siblingNodes]);
+       console.log("MembershipTest(" + this.state.secretKey + ", " + this.state.nullifier + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
+      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.nullifier, merkleRoot, dirSelector, siblingNodes]);
      //console.log("Your witness result: " + witness); DEBUG
       this.setState({generatedWitness: witness});
       console.log("End of Witness Conduct \n");
@@ -354,7 +348,7 @@ generateProof = async (e) => {
 <div>
 <div className="mb-3"><div className="mb-3" />
 <input className="form-control" type="text" name="secretKey" id="secretKey" onChange={this.handleSecretKey} placeholder="Enter your Secret Key" />
-<input className="form-control" type="text" name="Unique Identifier" id="uniqueID" onChange={this.handleChange} placeholder="Enter your unique identifier" />
+<input className="form-control" type="text" name="nullifier" id="nullifier" onChange={this.handleChange} placeholder="Enter your unique identifier" />
 <div className="mb-3" />
 
 

@@ -1,5 +1,5 @@
 
-export const ELECTION_ADDRESS = '0x64221586259c2C920A2bC777B57154dB3d7a7e0E';
+export const ELECTION_ADDRESS = '0x6a89606F6511E4Ef6237A656fA3D8fA8b9002aA0';
 export const ElectionAbi =  [
   {
     "inputs": [],
@@ -129,6 +129,25 @@ export const ElectionAbi =  [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "identifiers",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "merkleRoot",
     "outputs": [
@@ -168,19 +187,13 @@ export const ElectionAbi =  [
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "terminateElection",
+    "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "name": "publicKey",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -188,7 +201,7 @@ export const ElectionAbi =  [
   },
   {
     "inputs": [],
-    "name": "terminateElection",
+    "name": "voteCount",
     "outputs": [
       {
         "internalType": "uint256",
@@ -223,49 +236,8 @@ export const ElectionAbi =  [
     "inputs": [
       {
         "internalType": "string",
-        "name": "n",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "g",
-        "type": "string"
-      }
-    ],
-    "name": "pushPublicKey",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getPublicKey",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "n",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "g",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
         "name": "inputName",
         "type": "string"
-      },
-      {
-        "internalType": "uint8",
-        "name": "treeDepth",
-        "type": "uint8"
       },
       {
         "internalType": "string",
@@ -301,13 +273,13 @@ export const ElectionAbi =  [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[3]",
+        "internalType": "uint256[4]",
         "name": "input",
-        "type": "uint256[3]"
+        "type": "uint256[4]"
       },
       {
         "internalType": "uint256",
-        "name": "delegate",
+        "name": "voteVal",
         "type": "uint256"
       }
     ],

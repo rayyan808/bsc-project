@@ -110,17 +110,13 @@ class App extends Component {
 
     console.log("Invoking conductElection on the blockchain.")
     await Election.methods
-      .conductElection(this.state.electionName, 3, this.state.candidateA, this.state.candidateB)
+      .conductElection(this.state.electionName, this.state.candidateA, this.state.candidateB)
       .send({ from: Accounts[this.state.account], gas: 4000000 }).then(async (receipt) => {
         console.log(receipt);
       });
-      console.log("Pushing your publickey to the blockchain. \n N: " + this.state.publicKeyN + "\n G: " + this.state.publicKeyG);
-        await Election.methods.pushPublicKey(this.state.publicKeyN.toString(), this.state.publicKeyG.toString()).send({from: Accounts[this.state.account], gas:4000000 }).then((receipt) => {
-          console.log(receipt);
-        });
       console.log("End of Conduct \n");
     } else {
-      console.log("Enter values for Election Name, Candidates and Generate a Keypair first.");
+      console.log("Enter values for Election Name & Candidates");
     }
   }
      /* =========================================== ACCOUNT MANAGEMENT ==================================================================== */
@@ -206,11 +202,7 @@ class App extends Component {
             </div>
             </div>
       <div className="mb-3"><Button variant="btn btn-outline-success d-block w-100" onClick={this.conductElection} disabled={this.state.account == null}>{this.state.account == null ? 'Select an Account first':'Conduct Election'}</Button></div><a className="forgot" href="#">Rayyan Jafri</a>
-      <div className="mb-3">
-      <Button variant="btn btn-outline-primary d-block w-100" disabled={this.state.publicKey == null}onClick={() => {navigator.clipboard.writeText(this.state.publicKey)}}>Copy Public Key</Button> </div>
-      <Button variant="btn btn-outline-danger d-block w-100" disabled={this.state.privateKey == null} onClick={() => {navigator.clipboard.writeText(this.state.privateKey)}}>Copy Private Key</Button> 
-      <div className="mb-3"></div>
-      <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.generateKeyPair}>{this.state.keyGenerated ? 'Get new key pair' : 'Generate Keypair'}</Button>             
+                 
       <div className="mb-3"></div>      
       <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.getAccounts}>{this.state.accountLoaded ? 'Refresh Accounts' : 'Get Accounts'}</Button>
                       
@@ -222,3 +214,8 @@ class App extends Component {
   }
 }
 export default App;
+/*  <div className="mb-3">
+      <Button variant="btn btn-outline-primary d-block w-100" disabled={this.state.publicKey == null}onClick={() => {navigator.clipboard.writeText(this.state.publicKey)}}>Copy Public Key</Button> </div>
+      <Button variant="btn btn-outline-danger d-block w-100" disabled={this.state.privateKey == null} onClick={() => {navigator.clipboard.writeText(this.state.privateKey)}}>Copy Private Key</Button> 
+      <div className="mb-3"></div>
+      <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.generateKeyPair}>{this.state.keyGenerated ? 'Get new key pair' : 'Generate Keypair'}</Button> */

@@ -42,6 +42,7 @@ contract Election {
     string public name;
     address public owner;
     uint public activeVoters;
+    uint public voteCount;
     uint[] public identifiers;
     //@TODO: Convert state variable to enum or int for comparison in require
     string public currentState;
@@ -49,9 +50,7 @@ contract Election {
     //i.e Map a Voter object to ALL addresses
     mapping(address => Voter) voters;
     uint256[] internal voteKeyArray;
-    string[] encryptedVotes; 
     uint256[] internal merkleArray;
-    string[] public publicKey;
     Candidate[] public candidates;
     uint256 public merkleRoot;
     /* The election starters public key */
@@ -66,6 +65,7 @@ contract Election {
     event AnnounceResult(string candidate, uint[] tallyCount);
     /* Create an Event each time the owner authorizes a voter */
     event AnnounceAuth(address authorizedUser);
+    event AnnounceValidProof(bool x);
     event Debug(uint256 s);
     /* Called only when contract is created, contract compiler is the owner */
     constructor(){
@@ -142,15 +142,8 @@ contract Election {
             }
             emit Debug(voteKey);
     }   
-    //@TODO: Add require to prevent multiple pushes
-    function pushPublicKey(string memory n, string memory g) public {
-        publicKey.push(n); publicKey.push(g);
-    }
-    function getPublicKey() public view returns(string memory n, string memory g){
-        return (publicKey[0], publicKey[1]);
-    }
-    function conductElection(string memory inputName, uint8 treeDepth, string memory candidateA, string  memory candidateB) public  {
-        require(treeDepth >= 1 && treeDepth <= 33); //33 is the maximum depth of the tree allowed
+    function conductElection(string memory inputName, string memory candidateA, string  memory candidateB) public  {
+        //require(treeDepth >= 1 && treeDepth <= 33); //33 is the maximum depth of the tree allowed
         //publicKey = pubKey; /* Serialization of Public Key class as a string, Client may de-serialize for encryption*/
        // publicKey.push(n); publicKey.push(g);
         owner = msg.sender;
@@ -158,36 +151,38 @@ contract Election {
         uint256[] memory empty;
         candidates.push(Candidate(candidateA,empty));
         candidates.push(Candidate(candidateB,empty));
+        voteCount=0;
         currentState = "VOTEKEY-GENERATION";
         emit AnnounceNewStage(currentState);
     }
      /* Input Array: private field  secretKey, field merkleRoot, private bool[2]  directionSelector, field[2] siblingNodes */
      function submitVote( uint[2] memory a,
             uint[2][2] memory b,
-            uint[2] memory c, uint[4] memory input, uint index, string memory delegate) public {
+            uint[2] memory c, uint[4] memory input, uint voteVal) public {
     	/* Verify Voter rights and if they have voted previously */
-        require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
-        /* @TODO: Replace this with nullifier check */ 
+        //require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
+        /* 
         for(uint i=0; i < voteCount; i++){
             if(input[0] == identifiers[i]){
-                revert("You have already voted. ");
+                revert();
             }
-        }
+        }*/
         //require(voters[msg.sender].voted == false, "You have already voted"); 
 
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
 
         /* Verify the Proof of Membership */
-        Verifier verifier = new Verifier();
-        require(verifier.verifyTx(a, b, c, input));
-            //Candidate Index = input[1], Unique Identifier = input[0]
-            candidates[input[1]].votes.push(input[0]);
+        Verifier v = new Verifier();
+        bool x  = v.verifyTx(a, b, c, input);
+        emit AnnounceValidProof(x);
+       /*     //Candidate Index = voteVal, Unique Identifier = input[0]
+            candidates[voteVal].votes.push(input[0]);
             identifiers.push(input[0]);
-            /* Emit an event on the block to notify a new vote */
-            emit AnnounceVote(candidates[input[1]].name, msg.sender);
-            activeVoters--;
-            if(activeVoters == 0){ currentState = "END"; }
+            voteCount++;
+            /* Emit an event on the block to notify a new vote 
+            emit AnnounceVote(candidates[voteVal].name, msg.sender);
+            if(activeVoters == voteCount){ currentState = "END"; }*/
         
     } 
     function getMerkleInfo(string memory str) public view returns(uint256 targetIndex, uint256 firstLayerSize, uint256 [] memory entireMerkleArray, uint256 mkRoot) {
