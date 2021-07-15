@@ -28,7 +28,7 @@ When contract is deployed, the state change is appended onto the blockchain. */
 }*/
 
 
-contract Election {
+contract Election is Verifier {
     struct Candidate {
         string name;
         uint[] votes; /* A list of encrypted vote values for this candidate */
@@ -171,10 +171,8 @@ contract Election {
 
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
-
         /* Verify the Proof of Membership */
-        Verifier v = new Verifier();
-        bool x  = v.verifyTx(a, b, c, input);
+        bool x  = verifyTx(a, b, c, input);
         emit AnnounceValidProof(x);
        /*     //Candidate Index = voteVal, Unique Identifier = input[0]
             candidates[voteVal].votes.push(input[0]);
