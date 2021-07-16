@@ -107,7 +107,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -126,7 +127,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -139,7 +141,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -158,7 +161,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -171,7 +175,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -184,7 +189,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -197,7 +203,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -210,7 +217,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -244,7 +252,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -257,7 +266,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -367,7 +377,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -400,7 +411,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.4+commit.c7e474f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"authorizedUser\",\"type\":\"address\"}],\"name\":\"AnnounceAuth\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"stage\",\"type\":\"string\"}],\"name\":\"AnnounceNewStage\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"candidate\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"tallyCount\",\"type\":\"uint256[]\"}],\"name\":\"AnnounceResult\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"x\",\"type\":\"bool\"}],\"name\":\"AnnounceValidProof\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"candidate\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"proofOfMembership\",\"type\":\"address\"}],\"name\":\"AnnounceVote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"s\",\"type\":\"uint256\"}],\"name\":\"Debug\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"activeVoters\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"citizen\",\"type\":\"address\"}],\"name\":\"authorize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"candidates\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"inputName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"candidateA\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"candidateB\",\"type\":\"string\"}],\"name\":\"conductElection\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createMerkleArray\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentState\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCandidates\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"getMerkleInfo\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"targetIndex\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"firstLayerSize\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"entireMerkleArray\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256\",\"name\":\"mkRoot\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"identifiers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"merkleRoot\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"pushVoteKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"a\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2][2]\",\"name\":\"b\",\"type\":\"uint256[2][2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"c\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[4]\",\"name\":\"input\",\"type\":\"uint256[4]\"},{\"internalType\":\"uint256\",\"name\":\"voteVal\",\"type\":\"uint256\"}],\"name\":\"submitVote\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tallyVotes\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"terminateElection\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[2]\",\"name\":\"a\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[2][2]\",\"name\":\"b\",\"type\":\"uint256[2][2]\"},{\"internalType\":\"uint256[2]\",\"name\":\"c\",\"type\":\"uint256[2]\"},{\"internalType\":\"uint256[4]\",\"name\":\"input\",\"type\":\"uint256[4]\"}],\"name\":\"verifyTx\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"r\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"voteCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/rayyan808/Documents/Github/Bsc Project Git/bsc-project/contracts/Election.sol\":\"Election\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/rayyan808/Documents/Github/Bsc Project Git/bsc-project/contracts/Election.sol\":{\"keccak256\":\"0xa4d6ce466a4714b7a54653b982a37a4cc5153c9590426c0c675748bd63bb16af\",\"urls\":[\"bzz-raw://3b27ba5b8848da73db4844f1b4a237727399e0f57fd68ec178be17d660adccff\",\"dweb:/ipfs/QmULTmFWX3nzQekviSVBMCe24fW4bv4ZCLBuWeSSeWhvED\"]},\"/home/rayyan808/Documents/Github/Bsc Project Git/bsc-project/contracts/MiMC.sol\":{\"keccak256\":\"0xc72f6d17d2cb53a391aecaf2ec0b1cc35eed711482c17ca9cadd662bb39a01c2\",\"urls\":[\"bzz-raw://a9e5680c34ee558cb15db70b62299989982c7e6b135706ed4db28ea3a33e1d1e\",\"dweb:/ipfs/QmaUMfuMY1XfYp9k6FCQkBtdPdkqeMiPpd6p4S5FXYkynD\"]},\"/home/rayyan808/Documents/Github/Bsc Project Git/bsc-project/contracts/utility.sol\":{\"keccak256\":\"0xde0e44591681401bd31cd7868e7bb6f5dd574f10bc15eaf4053e2185263231c4\",\"urls\":[\"bzz-raw://74c2340e4aeb37151c104aa5b413476b0224b81d72a534730ec128911ce21348\",\"dweb:/ipfs/QmVaRQmRdjaipZy2X78whfQRnwmK3R8DxKP7mxfDiy1AnZ\"]},\"/home/rayyan808/Documents/Github/Bsc Project Git/bsc-project/contracts/verifier.sol\":{\"keccak256\":\"0x2ae37695050bc50225a4ae537eb98729022c63345fa15fe842f96ed45db3fbea\",\"license\":\"LGPL-3.0-only\",\"urls\":[\"bzz-raw://53b2db62aa42d6fd91dcc2242ece7028fd6947677c012cca1029b0282885b1ad\",\"dweb:/ipfs/QmTGmuyyzay4iDze91Db8EouEN28BuTJfzfLDD84HmU3sA\"]}},\"version\":1}",
@@ -27828,8 +27840,8 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x6a89606F6511E4Ef6237A656fA3D8fA8b9002aA0",
-      "transactionHash": "0x55c41f84238d3a68a5b17ad09dd5b040781fab3c8ad506a675d1187e299f4eaa"
+      "address": "0x4c765f8E39c6075aA10C9229D4df339589453157",
+      "transactionHash": "0x5418fa572258347c88d1eca9a1ece98cef1776129a5ac0b7a022a0a404b4f771"
     },
     "1621900403511": {
       "events": {},
@@ -27863,7 +27875,8 @@
     }
   },
   "schemaVersion": "3.4.0",
-  "updatedAt": "2021-07-15T00:11:04.328Z",
+  "updatedAt": "2021-07-16T14:15:00.641Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

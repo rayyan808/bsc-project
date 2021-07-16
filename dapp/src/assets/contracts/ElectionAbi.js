@@ -1,5 +1,5 @@
 
-export const ELECTION_ADDRESS = '0x6a89606F6511E4Ef6237A656fA3D8fA8b9002aA0';
+export const ELECTION_ADDRESS = '0x4c765f8E39c6075aA10C9229D4df339589453157';
 export const ElectionAbi =  [
   {
     "inputs": [],
