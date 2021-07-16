@@ -1,0 +1,134 @@
+{
+	"compiler": {
+		"version": "0.8.4+commit.c7e474f2"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "xL",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "xR",
+						"type": "uint256"
+					}
+				],
+				"name": "MiMCSponge",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "xL_in",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "xR_in",
+						"type": "uint256"
+					}
+				],
+				"name": "customMiMCSponge",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_left",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_right",
+						"type": "uint256"
+					}
+				],
+				"name": "hashMiMC",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/MiMC.sol": "MiMC"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/MiMC.sol": {
+			"keccak256": "0x674abf38876f03523fadccdd94e54392b6fa292a05d31c2efc88999e530adbd5",
+			"urls": [
+				"bzz-raw://4265579d0ed15b35c20d2b1d5bf54773d9ee1c7a169dfc433c8886a4d698bfb4",
+				"dweb:/ipfs/QmYCzkC437a7yyCVBUkmzLxFX3QEvQ68qGqU1ZhuPYgweD"
+			]
+		},
+		"contracts/constants.sol": {
+			"keccak256": "0x0778cd833bb8c5ee4256a94becb52e3aa0e3b743d5bd69ca53b4e9bd7cfb9aa8",
+			"urls": [
+				"bzz-raw://ca71f84f8fc9d2defb2b76be94bf1d59f4c65afe057bc637a14727f1fc313729",
+				"dweb:/ipfs/QmQeFEL4PobX6pDFBjpwP6YsHnwTb3C8BQ8uvG2VnzcrGs"
+			]
+		}
+	},
+	"version": 1
+}

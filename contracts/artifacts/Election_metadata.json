@@ -1,0 +1,424 @@
+{
+	"compiler": {
+		"version": "0.8.4+commit.c7e474f2"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "authorizedUser",
+						"type": "address"
+					}
+				],
+				"name": "AnnounceAuth",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "stage",
+						"type": "string"
+					}
+				],
+				"name": "AnnounceNewStage",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "candidate",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256[]",
+						"name": "tallyCount",
+						"type": "uint256[]"
+					}
+				],
+				"name": "AnnounceResult",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "candidate",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "proofOfMembership",
+						"type": "address"
+					}
+				],
+				"name": "AnnounceVote",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "s",
+						"type": "uint256"
+					}
+				],
+				"name": "Debug",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "activeVoters",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "citizen",
+						"type": "address"
+					}
+				],
+				"name": "authorize",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "candidates",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "inputName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint8",
+						"name": "treeDepth",
+						"type": "uint8"
+					},
+					{
+						"internalType": "string",
+						"name": "candidateA",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "candidateB",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "pk",
+						"type": "string"
+					}
+				],
+				"name": "conductElection",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "createMerkleArray",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "currentState",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getCandidates",
+				"outputs": [
+					{
+						"internalType": "string[]",
+						"name": "",
+						"type": "string[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "voteKey",
+						"type": "uint256"
+					}
+				],
+				"name": "getMerkleInfo",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "targetIndex",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "firstLayerSize",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "entireMerkleArray",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256",
+						"name": "merkleRoot",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "merkleRoot",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "name",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "publicKey",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "str",
+						"type": "string"
+					}
+				],
+				"name": "pushVoteKey",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256[2]",
+						"name": "a",
+						"type": "uint256[2]"
+					},
+					{
+						"internalType": "uint256[2][2]",
+						"name": "b",
+						"type": "uint256[2][2]"
+					},
+					{
+						"internalType": "uint256[2]",
+						"name": "c",
+						"type": "uint256[2]"
+					},
+					{
+						"internalType": "uint256[1]",
+						"name": "input",
+						"type": "uint256[1]"
+					},
+					{
+						"internalType": "uint256",
+						"name": "delegate",
+						"type": "uint256"
+					}
+				],
+				"name": "submitVote",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "tallyVotes",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "terminateElection",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "alpha",
+						"type": "uint256[]"
+					}
+				],
+				"name": "testHash",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/Election.sol": "Election"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/Election.sol": {
+			"keccak256": "0x1fa52c5e222423d293adf94156e2c89356853ea5f9ec162488c9cc4f3b4136a1",
+			"urls": [
+				"bzz-raw://df6867eb180649a9304961fe6b5105b02cc5636f2ce281b00295268ad48f5ea0",
+				"dweb:/ipfs/QmbuuVVstQyJknXw4siuSGtTasy9nKXgFoyHnXu2juHPzN"
+			]
+		},
+		"contracts/MiMC.sol": {
+			"keccak256": "0xc72f6d17d2cb53a391aecaf2ec0b1cc35eed711482c17ca9cadd662bb39a01c2",
+			"urls": [
+				"bzz-raw://a9e5680c34ee558cb15db70b62299989982c7e6b135706ed4db28ea3a33e1d1e",
+				"dweb:/ipfs/QmaUMfuMY1XfYp9k6FCQkBtdPdkqeMiPpd6p4S5FXYkynD"
+			]
+		},
+		"contracts/verifier.sol": {
+			"keccak256": "0xe8214086b355bc21ca5138a4de9b6c01bdd08835d3b3545d11703e58f050dc58",
+			"license": "LGPL-3.0-only",
+			"urls": [
+				"bzz-raw://7581e21e0b4dcb4e284203789ec30fdabdf180bc2ad733b2b35b8aa6100c9f97",
+				"dweb:/ipfs/QmUkWnVAR1HUiLLb2fhSgHds2GSuJXpEnHgtDw9imtmowC"
+			]
+		}
+	},
+	"version": 1
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 0,
+    "name": "Candidate A",
+    "picture": "images/scottish-terrier.jpeg",
+    "amount": 1337,
+    "address": "0x4C75250C22518101782492f4BF5b134cEDeE98de"
+  },
+  {
+    "id": 1,
+    "name": "Candidate B",
+    "picture": "images/scottish-terrier.jpeg",
+    "amount": 200,
+    "address": "0x8a9243548796bA46FD98b0610a6e3949C73f7809"
+  }
+]

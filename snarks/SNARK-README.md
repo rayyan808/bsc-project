@@ -1,0 +1,1 @@
+Client-side contains the compiled binary program of the SNARK circuit, a proving key and ABI specifications which can be used to generate a proof. The input format to this proof can be read via the ABI specification file "abi.json" to allow the user to generate the proof themselves (if they do not trust the implementation provided in the DApp using zokrates-js)

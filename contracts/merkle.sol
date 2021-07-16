@@ -1,30 +1,33 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 contract MerkleProof {
+    /* Given a list of hashes, the root of the merkle, the hash of the private key 
+    and index of the private key within the merkle tree */
     function verify(
-        bytes32[] memory proof, bytes32 root, bytes32 leaf, uint index
+        bytes32[] memory listOfHashes, bytes32 root, bytes32 leaf, uint index
     )
         public pure returns (bool)
     {
         bytes32 hash = leaf;
 
-        for (uint i = 0; i < proof.length; i++) {
-            bytes32 proofElement = proof[i];
-
+        for (uint i = 0; i < listOfHashes.length; i++) {
+            bytes32 proofElement = listOfHashes[i];
+            /*An even index means the current hash is the left node*/
             if (index % 2 == 0) {
                 hash = keccak256(abi.encodePacked(hash, proofElement));
             } else {
+            /* An odd index means the current hash is the left node*/
                 hash = keccak256(abi.encodePacked(proofElement, hash));
             }
-
+            /* Each layer of the tree is a power of 2, so we drop a power */
             index = index / 2;
         }
 
         return hash == root;
     }
 }
-
+/* */
 contract TestMerkleProof is MerkleProof {
     bytes32[] public hashes;
 
@@ -44,6 +47,7 @@ contract TestMerkleProof is MerkleProof {
         uint offset = 0;
 
         while (n > 0) {
+            /* For each Transaction,*/
             for (uint i = 0; i < n - 1; i+=2) {
                 hashes.push(
                     keccak256(abi.encodePacked(
