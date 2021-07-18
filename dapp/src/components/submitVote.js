@@ -187,16 +187,15 @@ getProvingKey = (event) => {
     this.setState({provingKey: buffer});
   });
 }
-getPairElement (idx, layer) {
-  const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
-
-  if (pairIdx < layer.length) {
-    return layer[pairIdx];
-  } else {
-    return null;
+findKey = (element, merkleArray) => {
+for(var i =0; i < merkleArray.length; i++){
+  if(element== merkleArray[i]){
+    console.log("Hash produced correct result. Recurring.");
+    return i;
   }
 }
-
+return -1;
+}
 generateProof = async (e) => {
   e.preventDefault();
   if(zkProvider !== undefined){
@@ -238,45 +237,69 @@ generateProof = async (e) => {
 
        /* Explicitly convert the general types because javascript sucks lol */
        var merkleRoot = result.mkRoot;
-       var offset = firstLayerSize;
+       var offset = firstLayerSize-1;
        console.log("offset: " + offset);
+       var depth = offset;
        var siblingNodes = [];
        var dirSelector = [];
        /* If we have 4 vote keys, taking..currentNodeIndex=0, targetIndex = 0, offset = 4, totalLength = 7 [false]*/
        /* Second round: currentNodeIndex = 4, offset = 2, totalLength=7 [false, false]*/
        /* Third Round: currentNodeIndex = 6 => END */
        /* We iterate UPWARDS from each layer*/
-       while(currentNodeIndex < merkleArray.length && currentNodeIndex > 0) {
+       console.log("initialIndex: " + currentNodeIndex);/*
+       while(offset > 1){
+         var sib = null;
+         if(currentNodeIndex % 2 == 0){
+           var i = parseInt(currentNodeIndex) + 1;
+           sib = merkleArray[i] ;
+           console.log("sibling: " + sib);
+           siblingNodes.push(sib);
+           currentNodeIndex = this.findKey(sib, merkleArray);
+           console.log("new index: " + currentNodeIndex);
+         } else {
+          var i = parseInt(currentNodeIndex) - 1;
+          sib = merkleArray[i] ;
+           console.log("sibling: " + sib);
+           siblingNodes.push(sib);
+           currentNodeIndex = this.findKey(sib, merkleArray);
+
+           console.log("new index: " + currentNodeIndex);
+         }
+         if(currentNodeIndex == undefined){
+           offset = -1;
+           console.log("[ERROR] Incorrect values provided. ")
+         }
+         offset = offset / 2;
+       } */
+       while(offset != 1) { //Always a div of 2, when = 1 -> Reached MK 
          console.log("currentNode < merkleLength :" + currentNodeIndex + "<" +  merkleArray.length)
         var siblingIndex;
-        //cn = 1
-        console.log("currentNode:" + currentNodeIndex);
+        //cn =
+        console.log("[DEBUG] currentNodeIndex: " + currentNodeIndex + "Offset: " + offset);
         if(currentNodeIndex % 2 == 0){ 
           dirSelector.push(false); 
-          /* Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. */
-          /* We are on the LEFT child, we want to add our RIGHT neighbour at index - 1 */
+          //Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. 
+           //We are on the LEFT child, we want to add our RIGHT neighbour at index - 1 
           siblingIndex = currentNodeIndex - 1;
-          currentNodeIndex -= offset; 
-          console.log("local index: " + siblingIndex);
+       //   currentNodeIndex -= offset; currentNodeIndex -= 1; //Since we jump to the next left child, we swap so we can obtain it again next iter
           console.log("[DEBUG] Adding index:" + siblingIndex);
           siblingNodes.push(String(merkleArray[siblingIndex])); 
           console.log("[DEBUG] Merkle Node: " + merkleArray[siblingIndex] + "added to sibling nodes");
-          console.log("[DEBUG] Next node: "+ currentNodeIndex);
+          currentNodeIndex = (currentNodeIndex/2) - 1;
         } else { 
           // [true,
-          /* We are on the RIGHT child, hence we are the SECOND argument in Hash(x,y) we want to add our neighbour that is on the index - 1*/
+          // We are on the RIGHT child, hence we are the SECOND argument in Hash(x,y) we want to add our neighbour that is on the index - 1
           dirSelector.push(true); 
           siblingIndex = currentNodeIndex + 1;
-          /* Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. */
-          currentNodeIndex = currentNodeIndex - offset + 1;
+          // Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. 
+         // currentNodeIndex = currentNodeIndex - offset + 1;
           console.log("[DEBUG] Adding index:" + siblingIndex);
           siblingNodes.push(String(merkleArray[siblingIndex])); 
           console.log("[DEBUG] Merkle Node: " + merkleArray[siblingIndex] + "added to sibling nodes"); 
+          currentNodeIndex = Math.floor(currentNodeIndex/2);
         }
         //cn = 1 + 4 = 5 (Layer 2, index 1)
-        console.log("currentNode: " + currentNodeIndex);
         offset = offset / 2;
-        console.log("offset: " + offset);
        }  
        console.log("Your direction selector: " + dirSelector + "\n Your sibling nodes: " + siblingNodes);// DEBUG
        console.log("Computing a witness and then generating a proof of membership for you.");
