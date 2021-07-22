@@ -276,7 +276,7 @@ generateProof = async (e) => {
          }
          offset = offset / 2;
        } */
-       while(offset != 1) { //Always a div of 2, when = 1 -> Reached MK 
+       while(offset != 1 && currentNodeIndex > 0) { //Always a div of 2, when = 1 -> Reached MK 
          console.log("currentNode < merkleLength :" + currentNodeIndex + "<" +  merkleArray.length)
         var siblingIndex;
         //cn =

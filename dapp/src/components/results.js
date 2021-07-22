@@ -13,7 +13,7 @@ class Results extends Component {
     super(props);
     this.state = {
       accountLabels: [],
-      candidateList: [], candidateLoaded : false, votes : [[]],
+      candidateList: [], candidateLoaded : false, votes : [], uniqueIdentifiers: [],
       candidateID: null, candidateTitle: null, totalCandidates: null
     }
     this.getCandidates.bind(this.getCandidates);
@@ -25,20 +25,27 @@ class Results extends Component {
     if(this.state.accountLoaded && this.state.account != null){
       /* Retrieve Candidate List from Blockchain */
       console.log("Sending request to Blockchain..");
-      await Election.methods.getCandidates()
+   /*   await Election.methods.getCandidates()
       .call({ from: await this.state.accountList[this.state.account], gas: 4000000 })
       .then((receipt) => {
           console.log("Candidate List recieved: " + receipt);
           this.setState({candidateList: receipt});
-      });
+      });*/
       await Election.methods.getTally().call({from: await this.state.accountList[this.state.account], gas: 4000000})
       .then((receipt) => {
         console.log("Candidate Object list recieved: " + receipt);
         for(var i=0; i< receipt.length; i++){
-          this.state.votes.push(receipt[i].voteCount);
-          console.log("Proposal: " + receipt[i].name + " Received: " + receipt[i].votes);
+          this.state.candidateList.push(receipt[i].name);
+          this.state.votes.push(receipt[i].votes.length);
+          console.log("Candidate Index:" + i + "has total vote count: " + receipt[i].votes.length);
+          var x = new Array();
+          for(var k=0; k < receipt[i].votes.length; k++){
+            x.push(receipt[i].votes[k]);
+          }
+          this.state.uniqueIdentifiers.push(x);
+          console.log("Proposal" + receipt[i].name + "(ID: " + i + ") got (" + receipt[i].votes.length + ") votes by Unique Identifiers: " + receipt[i].votes);
         }
-
+        console.log(this.state.uniqueIdentifiers)
         this.setState({candidateLoaded: true});
       });
       } 
@@ -93,6 +100,7 @@ render() {
                   <li className="nav-item"><a className="nav-link active" href="/conductElection" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Conduct Election</a></li>
                   <li className="nav-item"><a className="nav-link" href="/generateVoteKey" style={{color: 'var(--bs-yellow)', fontFamily: '"Alfa Slab One", serif'}}>Generate Vote Key</a></li>
                   <li className="nav-item"><a className="nav-link" href="/submitVote" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Submit Vote</a></li>
+                  <li className="nav-item"><a className="nav-link" href="/results" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Results</a></li>
                   <li className="nav-item" />
                 </ul>
               </div>
@@ -120,7 +128,7 @@ render() {
             {!this.state.candidateLoaded ? <Button disabled={true} variant="btn btn-outline-danger"> You must Query the candidates using an account first</Button> : (
        this.state.candidateList.map((mappedElement, index) => {
         console.log("rendering " + mappedElement);
-        return(<ResultCard key={index} title={mappedElement} index={index} votes={this.state.votes[index]} />);
+        return(<ResultCard key={index} title={mappedElement} index={index} votes={this.state.votes[index]} uniqueIdentifiers={this.state.uniqueIdentifiers[index]}  />);
           }))
         }
         </section>

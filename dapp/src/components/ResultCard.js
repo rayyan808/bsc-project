@@ -6,12 +6,15 @@ class ResultCard extends Component {
 
     }
     render () {
-        const title = this.props.title; const index = this.props.index; const votes = this.props.votes;
+        const title = this.props.title; const index = this.props.index; const votes = this.props.votes; const identifiers = this.props.uniqueIdentifiers;
         return(<div className="card-group d-inline-flex justify-content-center align-items-start" style={{padding: '33px'}}>
             <div className="card"><img className="card-img-top w-100 d-block" src={image} />
               <div className="card-body">
                 <h4 className="card-title">{title} </h4>
-                <p className="card-text">Candidate Index: {index}<br />Votes: {votes} <br /></p>
+                <p className="card-text">Candidate Index: {index}<br />Votes: {votes} <br /> <br /> Unique Identifiers: {this.props.uniqueIdentifiers.map((element, index) =>
+                 (<li key={index}> {element} </li>)
+                )}
+               </p>
               </div>
             </div>
           </div>);

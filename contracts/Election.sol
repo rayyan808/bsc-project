@@ -223,4 +223,7 @@ contract Election is Verifier {
         }
         return result;
     }
+    function getTally() public view returns(Candidate[] memory candidateResult){
+        return candidates;
+    }
 }
