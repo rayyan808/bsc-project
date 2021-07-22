@@ -39,6 +39,7 @@ class VoteKeyGeneratorForm extends Component {
         }
         bootUp = async () => {
          iniAccounts().then((acc) => { 
+           if(Accounts !== undefined){
             this.state.accountList = Accounts;
             console.log("Bootup accountlist: " + this.state.accountList);
             this.state.accountLoaded = true;
@@ -49,6 +50,10 @@ class VoteKeyGeneratorForm extends Component {
             }
             this.state.accountLabels = labels;
             console.log(this.state.accountLabels);
+          } else {
+            //@TODO: Error Pop-Up
+            console.log("You are not connected to a blockchain. ");
+          }
           });
           await iniZokrates();
        // console.log("Bootup accountlist: " + Accounts)
@@ -171,6 +176,7 @@ class VoteKeyGeneratorForm extends Component {
                           <li className="nav-item"><a className="nav-link active" href="/conductElection.html" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Conduct Election</a></li>
                           <li className="nav-item"><a className="nav-link" href="/generateVoteKey.html"  style={{color: 'var(--bs-yellow)', fontFamily: '"Alfa Slab One", serif'}}>Generate Vote Key</a></li>
                           <li className="nav-item"><a className="nav-link" href="/submitVote" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Submit Vote</a></li>
+                          <li className="nav-item"><a className="nav-link" href="/results" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Results</a></li>
                           <li className="nav-item" />
                         </ul>
                       </div>

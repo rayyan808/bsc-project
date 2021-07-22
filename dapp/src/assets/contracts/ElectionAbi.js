@@ -1,6 +1,6 @@
 
-export const ELECTION_ADDRESS = '0x6C519E11D2931Ac8Cf9942Cc49700BB7E6838D78';
-export const ElectionAbi =  [
+export const ELECTION_ADDRESS = '0xfd07B4067AFDA24edE7bCD17a292A540D9CAa410';
+export const ElectionAbi = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -49,6 +49,19 @@ export const ElectionAbi =  [
       }
     ],
     "name": "AnnounceResult",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "x",
+        "type": "bool"
+      }
+    ],
+    "name": "AnnounceValidProof",
     "type": "event"
   },
   {
@@ -194,6 +207,40 @@ export const ElectionAbi =  [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[2]",
+        "name": "a",
+        "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint256[2][2]",
+        "name": "b",
+        "type": "uint256[2][2]"
+      },
+      {
+        "internalType": "uint256[2]",
+        "name": "c",
+        "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint256[4]",
+        "name": "input",
+        "type": "uint256[4]"
+      }
+    ],
+    "name": "verifyTx",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "r",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -350,6 +397,31 @@ export const ElectionAbi =  [
         "internalType": "string[]",
         "name": "",
         "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTally",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "votes",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct Election.Candidate[]",
+        "name": "candidateResult",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",

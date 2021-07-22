@@ -7,13 +7,11 @@ import {Button} from 'react-bootstrap';
 import Select from 'react-select';
 import * as paillierBigint from 'paillier-bigint';
 import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
-//import {useState, setState} from 'react';
 import {Election, Accounts, web3, iniAccounts} from './components/web3_utility';
 import {iniZokrates, zkProvider} from './components/zkProvider';
 const Abi = require ('./assets/contracts/electionAbi.json');
 const ESSerializer = require('esserializer');
 var JSONbig = require('json-bigint');
-//const { initialize } = require('zokrates-js');
 class App extends Component {
   constructor(props){
     super(props);
@@ -170,6 +168,7 @@ class App extends Component {
             <li className="nav-item"><a className="nav-link active" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}><Link to="/conductElection">Conduct Election</Link></a></li>
             <li className="nav-item"><a className="nav-link" style={{color: 'var(--bs-yellow)', fontFamily: '"Alfa Slab One", serif'}}><Link to="/generateVoteKey">Generate Vote Key</Link></a></li>
             <li className="nav-item"><a className="nav-link" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}><Link to="/submitVote">Submit Vote</Link></a></li>
+            <li className="nav-item"><a className="nav-link" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}><Link to="/results">Results</Link></a></li>
             <li className="nav-item" />
           </ul>
         </div>

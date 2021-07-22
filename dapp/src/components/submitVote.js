@@ -119,6 +119,7 @@ class SubmitVoteForm extends Component {
      if(!this.state.accountLoaded){
     console.log("Retrieving Accounts from Blockchain.");
     await iniAccounts().then(() => { 
+      if(Accounts != undefined) {
       this.setState({accountList : Accounts});
       this.setState({accountLoaded: true});
       var labels = new Array();
@@ -128,6 +129,10 @@ class SubmitVoteForm extends Component {
       }
       this.setState({accountLabels : labels});
       console.log(this.state.accountLabels);
+    } else {
+      //@TODO: Error Pop-UP
+      console.log("You are not connected to a blockchain. ");
+    }
     });
   }
 }
@@ -353,7 +358,8 @@ generateProof = async (e) => {
                 <ul className="navbar-nav">
                   <li className="nav-item"><a className="nav-link active" href="/conductElection" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Conduct Election</a></li>
                   <li className="nav-item"><a className="nav-link" href="/generateVoteKey" style={{color: 'var(--bs-yellow)', fontFamily: '"Alfa Slab One", serif'}}>Generate Vote Key</a></li>
-                  <li className="nav-item"><a className="nav-link" href="/" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Submit Vote</a></li>
+                  <li className="nav-item"><a className="nav-link" href="/submitVote" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Submit Vote</a></li>
+                  <li className="nav-item"><a className="nav-link" href="/results" style={{fontFamily: '"Alfa Slab One", serif', color: 'var(--bs-yellow)'}}>Results</a></li>
                   <li className="nav-item" />
                 </ul>
               </div>
