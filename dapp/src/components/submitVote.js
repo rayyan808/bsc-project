@@ -9,9 +9,6 @@ import { voteKeyGenerator, zkProvider, iniZokrates}  from './zkProvider';
 import {Election, Accounts, web3, iniAccounts} from './web3_utility';
 import { withRouter } from 'react-router-dom';
 import { initialize } from 'zokrates-js';
-import * as paillierBigint from 'paillier-bigint';
-import * as bigintConversion from 'bigint-conversion'
-import { string } from 'prop-types';
 var JSONbig = require('json-bigint');
 const candidateLabels =[{label:"Trump", value: 0 },{label:"Obama", value: 1 }];
 class SubmitVoteForm extends Component {
@@ -223,59 +220,20 @@ generateProof = async (e) => {
          }
        }
        console.log("Your leaf index:" + currentNodeIndex + "\n First Layer Size: " + firstLayerSize + "\n Merkle Array: " + merkleArray); //DEBUG
-       /*===================================================== GET PUBLIC KEY ====================================================================
-       let publicKey = await Election.methods.getPublicKey().call({ from: this.state.accountList[this.state.account], gas: 400000 });
-       if(publicKey !== undefined){
-            // Utilize this library to parse our string values from ETH as Javascript BigInts 
-            var n = bigintConversion.textToBigint(publicKey.n);
-            var g = bigintConversion.textToBigint(publicKey.g);
 
-            console.log("[getPublicKey] Recieved: " + n + "\n " + g);
-            const pk = new paillierBigint.PublicKey(n, g);
-            console.log("[getPublicKey] Assigning Public Key to State.");
-            this.setState({publicKey: pk});
-            console.log("[STATE] publicKey: " + this.state.publicKey);
-        } else { 
-            console.log("[getPublicKey] Public Key failed to load. (undefined)"); 
-        } 
        /*========================================================== PROOF OF MEMBERSHIP PRE-COMPUTATIONS =========================================*/
 
        /* Explicitly convert the general types because javascript sucks lol */
        var merkleRoot = result.mkRoot;
        var offset = firstLayerSize-1;
        console.log("offset: " + offset);
-       var depth = offset;
        var siblingNodes = [];
        var dirSelector = [];
        /* If we have 4 vote keys, taking..currentNodeIndex=0, targetIndex = 0, offset = 4, totalLength = 7 [false]*/
        /* Second round: currentNodeIndex = 4, offset = 2, totalLength=7 [false, false]*/
        /* Third Round: currentNodeIndex = 6 => END */
        /* We iterate UPWARDS from each layer*/
-       console.log("initialIndex: " + currentNodeIndex);/*
-       while(offset > 1){
-         var sib = null;
-         if(currentNodeIndex % 2 == 0){
-           var i = parseInt(currentNodeIndex) + 1;
-           sib = merkleArray[i] ;
-           console.log("sibling: " + sib);
-           siblingNodes.push(sib);
-           currentNodeIndex = this.findKey(sib, merkleArray);
-           console.log("new index: " + currentNodeIndex);
-         } else {
-          var i = parseInt(currentNodeIndex) - 1;
-          sib = merkleArray[i] ;
-           console.log("sibling: " + sib);
-           siblingNodes.push(sib);
-           currentNodeIndex = this.findKey(sib, merkleArray);
-
-           console.log("new index: " + currentNodeIndex);
-         }
-         if(currentNodeIndex == undefined){
-           offset = -1;
-           console.log("[ERROR] Incorrect values provided. ")
-         }
-         offset = offset / 2;
-       } */
+       console.log("initialIndex: " + currentNodeIndex);
        while(offset != 1 && currentNodeIndex > 0) { //Always a div of 2, when = 1 -> Reached MK 
          console.log("currentNode < merkleLength :" + currentNodeIndex + "<" +  merkleArray.length)
         var siblingIndex;
@@ -283,16 +241,13 @@ generateProof = async (e) => {
         console.log("[DEBUG] currentNodeIndex: " + currentNodeIndex + "Offset: " + offset);
         if(currentNodeIndex % 2 == 0){ 
           dirSelector.push(false); 
-          //Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. 
            //We are on the LEFT child, we want to add our RIGHT neighbour at index - 1 
           siblingIndex = currentNodeIndex - 1;
-       //   currentNodeIndex -= offset; currentNodeIndex -= 1; //Since we jump to the next left child, we swap so we can obtain it again next iter
           console.log("[DEBUG] Adding index:" + siblingIndex);
           siblingNodes.push(String(merkleArray[siblingIndex])); 
           console.log("[DEBUG] Merkle Node: " + merkleArray[siblingIndex] + "added to sibling nodes");
           currentNodeIndex = (currentNodeIndex/2) - 1;
         } else { 
-          // [true,
           // We are on the RIGHT child, hence we are the SECOND argument in Hash(x,y) we want to add our neighbour that is on the index - 1
           dirSelector.push(true); 
           siblingIndex = currentNodeIndex + 1;
