@@ -58,7 +58,6 @@ contract Election is Verifier {
         /* Guarantee that a valid merkle tree can be constructed with the given nodes*/
         //assert(voteKeyArray.length >= 2);
         uint pow = 1; bool isPowerOf2 = false;
-        uint256 tempValDebug =0;
         /* Find the power of 2 closest or equal to the length, if equal do nothing */
         while(pow <= voteKeyArray.length){ if(pow == voteKeyArray.length) { isPowerOf2 = true; break; } else { pow = pow *2; } }
         /* If index isn't a power of two, we pump it with static public vote keys */
@@ -66,9 +65,7 @@ contract Election is Verifier {
         /* For each voteKey struct present, transfer the hashed value into the Merkle Array */
         for(uint i =0; i < voteKeyArray.length; i++){
             //leaf = MiMC.MiMC_Hash([voteKeyArray[i],voteKeyArray[i+1]]);
-            emit Debug(tempValDebug);
-            tempValDebug = voteKeyArray[i];
-            merkleArray.push(tempValDebug);
+            merkleArray.push(voteKeyArray[i]);
         }
         uint nodeCount=0;
         uint n = voteKeyArray.length;
@@ -104,19 +101,19 @@ contract Election is Verifier {
         uint256 voteKey = utility.stringToUint(str);
         /* check double-vote and if votekey generation stage is active*/
        // require(currentState == "VOTEKEY-GENERATION");
-        /* Make sure the voter has been authorized and that they haven't already generated a key*/
+        /* Make sure that an authorized Node is registering this Vote Key*/
         require(voters[msg.sender].authorized == true);
-        /* Mapping Implementation */
-        /* Array Implementation */
         voteKeyArray.push(voteKey);
         activeVoters++;
-        /* Check if our voter count exceeded or reached a power of 2*/
+        /* Check if our voter count has reached 4
+        * This implementation CAN be extended to generic numbers
+        * if the zokrates circuit is configured using Generic Functions
+        * Contact r.jafri@student.rug.nl if you need help with this
+        */
         if(activeVoters == 4) { 
-
-            emit Debug(voteKey);
-           createMerkleArray();
-            }
-            emit Debug(voteKey);
+            createMerkleArray();
+        }
+        emit Debug(voteKey);
     }   
     function conductElection(string memory inputName, string memory candidateA, string  memory candidateB) public  {
         //require(treeDepth >= 1 && treeDepth <= 33); //33 is the maximum depth of the tree allowed
