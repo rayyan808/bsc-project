@@ -24,8 +24,8 @@ contract Election is Verifier {
     string public currentState;
     // Key: Address, Value: Voter 
     //i.e Map a Voter object to ALL addresses
-    mapping(address => Voter) voters;
-    uint256[] internal voteKeyArray;
+    mapping(address => Voter) public voters;
+    uint256[] public voteKeyArray;
     uint256[] public merkleArray;
     Candidate[] public candidates;
     uint256 public merkleRoot;
@@ -37,7 +37,7 @@ contract Election is Verifier {
     /* Everytime a vote is executed, this event is logged onto the block. Currently the voters public address is shown next to the candidate they voted
     for, in future updates this address will be replaced by a ZKP */
     event AnnounceVote(string candidate, address proofOfMembership);
-    /* Emit an event every time a vote tally is called. (DEBUG) */
+    /* Emit an event every time a vote tally is called. */
     event AnnounceResult(string candidate, uint[] tallyCount);
     /* Create an Event each time the owner authorizes a voter */
     event AnnounceAuth(address authorizedUser);
@@ -47,17 +47,18 @@ contract Election is Verifier {
     constructor(){
         owner = msg.sender;
     }
-    /* When a potential voter wishes to generate a proof, they required their index in the Merkle Tree aswell as the Merkle Root*/
- /*   function getMerkleInfo(string memory voteKey) public returns() {
-
-    } */
-    /* Once the VOTEKEY-GENERATION period has expired, this function is called to produce a Merkle Tree.
-    There should be a Nth power of 2 length of valid vote keys, if such a case does not exist dummy values are pumped. 
+    /* Used to generate a Merkle Tree from the list of current Vote Keys
+    * Adjusts to next power of 2 and fills dummy voteKeys to satisfy
+    * Merkle Binary properties. For simplicity during testing, voting takes place with exactly 4
+    * voters so this method is not employed. (If you are using this feature, you should
+    * also integrate Generic Functions in the circuit proof. Something I may add
+    * later on. (see BONUS in the README.md)) 
     GAS COST EST: 300k */
     function createMerkleArray() public {
         /* Guarantee that a valid merkle tree can be constructed with the given nodes*/
         //assert(voteKeyArray.length >= 2);
         uint pow = 1; bool isPowerOf2 = false;
+        uint tempVal =0;
         /* Find the power of 2 closest or equal to the length, if equal do nothing */
         while(pow <= voteKeyArray.length){ if(pow == voteKeyArray.length) { isPowerOf2 = true; break; } else { pow = pow *2; } }
         /* If index isn't a power of two, we pump it with static public vote keys */
@@ -65,7 +66,8 @@ contract Election is Verifier {
         /* For each voteKey struct present, transfer the hashed value into the Merkle Array */
         for(uint i =0; i < voteKeyArray.length; i++){
             //leaf = MiMC.MiMC_Hash([voteKeyArray[i],voteKeyArray[i+1]]);
-            merkleArray.push(voteKeyArray[i]);
+            tempVal = voteKeyArray[i];
+            merkleArray.push(tempVal);
         }
         uint nodeCount=0;
         uint n = voteKeyArray.length;
@@ -89,6 +91,7 @@ contract Election is Verifier {
             if(n <= 0){ //next while wont occur. The offset at this point is the number of nodes in the tree
             }
         }
+        merkleRoot = merkleArray[merkleArray.length-1];
         /* merkleArray now contains all nodes, ordered by indexing of layer size. i.e 8 voteKeys => index [0..7], 4 parent nodes produced => index [8..11], 2 nodes produced => index [12..13], Merkle Root => index [14]*/
         currentState = "VOTING-OPEN";
         emit AnnounceNewStage(currentState); 
@@ -128,24 +131,25 @@ contract Election is Verifier {
         currentState = "VOTEKEY-GENERATION";
         emit AnnounceNewStage(currentState);
     }
-     /* Input Array: private field  secretKey, field merkleRoot, private bool[2]  directionSelector, field[2] siblingNodes */
+     /* 
+     * Input: ZK Proof bytes
+     * Checks for double-vote using identifier array
+     * Asserts that ZK-Proof is Valid
+     * Adds the Voters Identifier to the Candidates Votes
+     */ 
      function submitVote( uint[2] memory a,
             uint[2][2] memory b,
             uint[2] memory c, uint[4] memory input, uint voteVal) public {
-    	/* Verify Voter rights and if they have voted previously */
-        //require(voters[msg.sender].authorized == true, "The owner did not authorize you to vote."); 
-        /* 
         for(uint i=0; i < voteCount; i++){
             if(input[0] == identifiers[i]){
                 revert();
             }
-        }*/
-        //require(voters[msg.sender].voted == false); 
-
+        }
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
         /* Verify the Proof of Membership */
         bool x  = verifyTx(a, b, c, input);
+        assert(x);
         emit AnnounceValidProof(x);
        /*     //Candidate Index = voteVal, Unique Identifier = input[0]*/
             candidates[voteVal].votes.push(input[0]);
@@ -156,6 +160,29 @@ contract Election is Verifier {
             if(activeVoters == voteCount){ currentState = "END"; emit AnnounceNewStage(currentState);}
         
     } 
+    /* 
+    * Election owner needs to authorize node addresses that 
+    * are allowed to register to vote. This may be individual
+    * user addresses or pre-allocated voting systems.
+    */
+    function authorize(address nodeAddress) public {
+        require(msg.sender == owner);
+        voters[nodeAddress].authorized = true;
+        calculateVoteWeight(nodeAddress);
+        emit AnnounceAuth(nodeAddress);
+        
+    }
+    /* You may alter the vote weight according to your program specifications
+    * We take a basic example of equal voting weights for each user.
+    */
+    function calculateVoteWeight(address citizen) private {
+        voters[citizen].weight = 1;
+    }
+    /* ====================== HELPER FUNCTIONS ====================*/
+    /* 
+    * Used by the DApp to retrieve information needed to
+    * compute a path to the Merkle Root locally. 
+    */
     function getMerkleInfo(string memory str) public view returns(uint256 targetIndex, uint256 firstLayerSize, uint256 [] memory entireMerkleArray, uint256 mkRoot) {
     	uint index = 1337;
         uint256 voteKey = utility.stringToUint(str);
@@ -168,27 +195,9 @@ contract Election is Verifier {
     	require(index != 1337);
     	return (index, voteKeyArray.length, merkleArray, merkleArray[merkleArray.length-1]);
     }
-    /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
-    / value that affects the summation in submitVote(..)*/
-    function authorize(address nodeAddress) public {
-        require(msg.sender == owner);
-        voters[nodeAddress].authorized = true;
-        calculateVoteWeight(nodeAddress);
-        emit AnnounceAuth(nodeAddress);
-        
-    }
-    function tallyVotes() public {
-    	/* @TODO: Add a loop for dynamic candidates*/
-        emit AnnounceResult(candidates[0].name, candidates[0].votes);
-        emit AnnounceResult(candidates[1].name, candidates[1].votes);
-    }
-    /* Here will be the custom weight function responsible for calculating a vote weight
-    based on User financial investment or something similar */
-    function calculateVoteWeight(address citizen) private {
-        /* (TEMPORARY) HARD-CODED VALUE OF 1 */
-        voters[citizen].weight = 1;
-    }
-    /* ====================== WEB3 HELPER GETTERS ====================*/
+    /* 
+    * Used by the DApp to retrieve candidate information 
+    */
     function getCandidates() public view returns(string[] memory){
         string[] memory result = new string[](candidates.length);
         for(uint i=0; i<candidates.length; i++){
@@ -196,6 +205,9 @@ contract Election is Verifier {
         }
         return result;
     }
+    /* 
+    * Used by the DApp to retrieve information for self-tallying
+    */
     function getTally() public view returns(Candidate[] memory candidateResult){
         return candidates;
     }
