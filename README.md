@@ -1,29 +1,53 @@
-My Bachelor Project
+ZERO-KNOWLEDGE VOTING SYSTEM USING TRUFFLE, ZOKRATES.JS, GANACHE & REACT-JS 
+
+
+HOW TO INSTALL:
+Blockchain Components:
+Install your local blockchain (Ganache, Ganache-CLI, TestRPC..) then
+from the project root: 
+`npm install` - Install deps 
+`npm install -g truffle` - Install truffle
+
+DAPP
+`cd dapp` - Navigate to DAPP root
+`yarn install` - Install deps
 
 
 HOW TO RUN:
-Run your local blockchain (Ganache, Ganache-CLI, TestRPC..) then
-from the project root: npm install, truffle deploy
 
-from dapp root: yarn install, yarn start 
+Blockchain:
+`ganache-cli --port 7454` - Run your local blockchain, we used ganache. 
 
-Make sure to keep the inspection tab open whilst using the website in order to recieve information on current async processes. (F12 for Google Chrome)
+The port specifications are configured within the `truffle-config.js` file in the project root directory. We explicitly define `7454` as ganache uses `8454` be default. This may be changed.
 
-Assets: Due to a bug in Zokrates-JS I found (see: https://github.com/Zokrates/ZoKrates/issues/909), we must unfortunately locate and compile the zero-knowlege circuits ourselves. All the required assets are located within the DApp/snarks/client-side
+`truffle deploy` - Deploy the ZK Voter and it's libraries to the aforementioned blockchain.
 
-Vote-Key Generation: You need to open the 'combinedCircuit.zok'
+(Note the log that follows after deployment. Copy the `contract address` provided under the Election Contract, we will use it in the DApp setup)
+DApp:
+Prerequisite: We have not added a config file that may be read yet, so you must manually obtain the Election deployment address (see previous section) and paste it into the `ELECTION_ADDRESS` variable within `/dapp/src/assets/contracts/ElectionAbi.js`. (Note: If you alter the Election contract, you must re-compile via `truffle compile` and paste the new JSON ABI found within `build/contracts/Election.json`)
 
-Submitting Vote/Proof Generation: You need to open the 'membershipTest.zok' file. 
+
+`cd dapp` - Navigate to the DApp directory
+`yarn start` - Start up the DApp
+
+HOW TO TEST:
+
+Run `truffle test` from the project root directory. This will spool a local development blockchain for you and conduct the tests which can be evaluated at `/test/electionTest.js/`
+
+Assets: Due to a bug in Zokrates-JS I found (see: https://github.com/Zokrates/ZoKrates/issues/909), we must unfortunately locate and compile the zero-knowlege circuits ourselves instead of directly loading pre-compiled binaries. All the required assets are located within the DApp/snarks/client-side.
+
+Vote-Key Generation: You need to open the ZK circuit at: `/dapp/snarks/client-side/combinedCircuit.zok`
+
+Submitting Vote/Proof Generation: You need to open the ZK circuit at `membershipTest.zok`.
 
 Once Zokrates-JS includes the PR from issue 909 into their next release, compilation can be disregarded in favour of pre-compile binaries. Though self-compilation is exhausting, it does show the true transparency of zero-knowledge proofs, and can provide valuable learning insight to users on the functionality within the source-code.
 
 In-Progress:
->>>>> Test Merkle Adjustment Function <<<<<
->>>>> Test Verifier Contract <<<<<
->>>>> Develop Tests for all contracts <<<<
+NOTE: Authorize address is disabled for debugging, the final release will contain the ability to authorize node addresses when conducting the election. 
 BONUS: >>> Improve the ZK circuit from 3 layers to dynamic layers using Zokrates Generic Functions <<<<
-
-Progress:
+BONUS: >>> Upgrade to Truffle Beta and utilize Revert Messages for better User clarification on incorrect method calls <<<
+BONUS: >>> Improve UI <<<
+Rough work log:
 - Studied Zokrates Docs
 - Studied EVM Docs (Skimmed through, more like)
 - Studied Soldiity Docs
@@ -50,5 +74,6 @@ Progress:
 - Add Nullifier 
 - Ditched Homomorphic Encryption in favour of simpler disasociation method
 - Vote value included within ZK-SNARK
-
+- Tests added
+- Readme made more clear
 

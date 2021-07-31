@@ -3,29 +3,6 @@ pragma solidity ^0.8.0;
 import "./MiMC.sol";
 import "./verifier.sol";
 import "./utility.sol";
-/* PERSONEL NOTES:
-Each invokation will cost Gas (measured in computational steps), the transaction
-of incrementing a candidate vote and losing right to vote (again) is
- STORAGE -> STATE VARIABLES
- MEMORY -> LOCAL VAR WITHIN function
- CALLDATA -> ONLY WITHIN PARAM 
-/* We can pre-generate a proof of membership circuit in Zokrates using a Merkle Tree with all public keys as an input. A user may prove that
-he is a member of the tree via the Merkle Root rt. 
-
-/* @TODO: Merkle Tree Generator, input values into zok file
-Proving membership: 
-Inputs => Public merkleRoot, treeDepth, Private uint[] directionNavigator, currentNode, 
-
-User Inputs into Proof Generation => Private secretKey
-
-Owner Inputs => Self generated Secret Key and Public Key, and Verification Key
-When contract is deployed, the state change is appended onto the blockchain. */
-/*struct MerkleTree {
-    string value;
-    MerkleTree left;
-    MerkleTree right;
-
-}*/
 
 
 contract Election is Verifier {
@@ -167,7 +144,7 @@ contract Election is Verifier {
                 revert();
             }
         }*/
-        //require(voters[msg.sender].voted == false, "You have already voted"); 
+        //require(voters[msg.sender].voted == false); 
 
          /*Verify if Voting process is active*/
         //require(currentState == "VOTING-OPEN");
