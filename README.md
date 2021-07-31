@@ -31,7 +31,7 @@ Prerequisite: We have not added a config file that may be read yet, so you must 
 `yarn start` - Start up the DApp
 
 HOW TO TEST:
-
+`truffle develop` - Enter a development environment 
 Run `truffle test` from the project root directory. This will spool a local development blockchain for you and conduct the tests which can be evaluated at `/test/electionTest.js/`
 
 Assets: Due to a bug in Zokrates-JS I found (see: https://github.com/Zokrates/ZoKrates/issues/909), we must unfortunately locate and compile the zero-knowlege circuits ourselves instead of directly loading pre-compiled binaries. All the required assets are located within the DApp/snarks/client-side.

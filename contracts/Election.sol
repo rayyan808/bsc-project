@@ -13,7 +13,6 @@ contract Election is Verifier {
     /* Each address in Address Space is mapped to an empty Voter struct with default values */
     struct Voter {
         bool authorized; /* So an owner has control over which public addresses may invoke functions */
-        bool submittedVoteKey; /* So we can prevent multiple voteKeys from one address */
         uint weight; /* The on-chain calculated weight of the voter*/
     }
     string public name;
@@ -27,7 +26,7 @@ contract Election is Verifier {
     //i.e Map a Voter object to ALL addresses
     mapping(address => Voter) voters;
     uint256[] internal voteKeyArray;
-    uint256[] internal merkleArray;
+    uint256[] public merkleArray;
     Candidate[] public candidates;
     uint256 public merkleRoot;
     /* The election starters public key */
@@ -106,7 +105,7 @@ contract Election is Verifier {
         /* check double-vote and if votekey generation stage is active*/
        // require(currentState == "VOTEKEY-GENERATION");
         /* Make sure the voter has been authorized and that they haven't already generated a key*/
-        //require(/*voters[msg.sender].authorized == true &&*/ voters[msg.sender].submittedVoteKey == false);
+        require(voters[msg.sender].authorized == true);
         /* Mapping Implementation */
         /* Array Implementation */
         voteKeyArray.push(voteKey);
@@ -174,11 +173,11 @@ contract Election is Verifier {
     }
     /* The invoker of the Election can convert 'citizens' into 'voters' by giving the rights variable
     / value that affects the summation in submitVote(..)*/
-    function authorize(address citizen) public {
+    function authorize(address nodeAddress) public {
         require(msg.sender == owner);
-        voters[citizen].authorized = true;
-        calculateVoteWeight(citizen);
-        emit AnnounceAuth(msg.sender);
+        voters[nodeAddress].authorized = true;
+        calculateVoteWeight(nodeAddress);
+        emit AnnounceAuth(nodeAddress);
         
     }
     function tallyVotes() public {
