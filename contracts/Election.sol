@@ -196,16 +196,6 @@ contract Election is Verifier {
     	return (index, voteKeyArray.length, merkleArray, merkleArray[merkleArray.length-1]);
     }
     /* 
-    * Used by the DApp to retrieve candidate information 
-    */
-    function getCandidates() public view returns(string[] memory){
-        string[] memory result = new string[](candidates.length);
-        for(uint i=0; i<candidates.length; i++){
-            result[i]= (candidates[i].name);
-        }
-        return result;
-    }
-    /* 
     * Used by the DApp to retrieve information for self-tallying
     */
     function getTally() public view returns(Candidate[] memory candidateResult){

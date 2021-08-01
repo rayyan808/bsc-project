@@ -12,15 +12,14 @@ import { initialize } from 'zokrates-js';
 var JSONbig = require('json-bigint');
 const candidateLabels =[{label:"Trump", value: 0 },{label:"Obama", value: 1 }];
 class SubmitVoteForm extends Component {
-    /* ==================================== INITIALIZATION ==================================================*/
+    /* ==================================== INITIALIZATION & BINDING ==================================================*/
     constructor(props){
         super(props);
         this.state={
         candidateID: null,candidateName: "None", candidateLoaded: false, candidateList: [],candidateLabels: [{}], //Candidate Props
         account: null, accountList: null, accountLoaded: false, accountSelected: false, //Account Props
         secretKey: null, nullifier: null,  voteKey: null, proofGenerated: false, provingKey: null, provingKeySelected: false,//Zero-Knowledge Props
-        membershipGenerator: null, zokFile: null, fileCompiled: false, generatedWitness: null, //Zero-Knowledge Props
-        publicKeyN: "", publicKeyG: "", publicKey: null //Encryption Props
+        membershipGenerator: null, zokFile: null, fileCompiled: false, generatedWitness: null //Zero-Knowledge Props
       };
         this.handleChange = this.handleChange.bind(this);
         this.handleSecretKey = this.handleSecretKey.bind(this);
@@ -28,7 +27,6 @@ class SubmitVoteForm extends Component {
         this.handleCandidateLabel = this.handleCandidateLabel.bind(this);
         this.getCandidates = this.getCandidates.bind(this);
                       /* Accounts */
-        this.displayAccountlist = this.displayAccountlist.bind(this);
         this.handleAccountChange = this.handleAccountChange.bind(this);
         this.getAccounts = this.getAccounts.bind(this);
                     /* Zokrates File MGMT */
@@ -41,6 +39,9 @@ class SubmitVoteForm extends Component {
         iniZokrates();
     }
     /*=====================================================================================================*/
+    /* 
+    * Generic handling function called upon when the user updates a selection
+    */
     handleChange = (e) => {
       e.preventDefault();
       const val  = e.target.value.toString();
@@ -49,19 +50,23 @@ class SubmitVoteForm extends Component {
       });
       console.log('State: ' + e.target.name + ' Value:' + val);
       }
+      /* 
+      * Specific handler for storing the secret key within the current state
+      */
     handleSecretKey = (e) => {
       e.preventDefault();
       this.setState({secretKey: e.target.value});
       console.log("SK set");
     }
+    /* 
+    * Called upon when the user has fulfilled all pre-requistes 
+    * required to submit the ZK-Proof to the blockchain
+    */
    submitVote = async (e) => {
      e.preventDefault();
-     var voteValue;
-     //constraints
      var a = this.state.proof !== null; var  b = this.state.candidateID !== null;  var c = this.state.proofGenerated !== null;
      if(a &&  b && c){ 
        try {
-          console.log("[DEBUG]: voteValue: " + this.state.candidateID); //DEBUG
           var keys = Object.keys(this.state.proof.proof); var keys2 = Object.keys(this.state.proof.inputs);
           console.log("[DEBUG] Proof attributes: " + this.state.proof + "\n [2]: " + keys + "\n " + keys2);
           let receipt = await Election.methods
@@ -77,6 +82,10 @@ class SubmitVoteForm extends Component {
       }
     }
    /* =========================================== CANDIDATE MANAGEMENT ===================================================================*/
+   /* 
+   * Called upon when the user requests a list of candidates
+   * from the Election state
+   */
    getCandidates = async (e) => {
     e.preventDefault();
     if(this.state.accountLoaded && this.state.account != null){
@@ -103,50 +112,39 @@ class SubmitVoteForm extends Component {
       else {  this.getAccounts(); }
    }
     
-    /* Handle Candidate Dropdown Selection => Passes candidate index as e.value*/
+    /* 
+    * Called upon when the user updates their candidate selection
+    */
     handleCandidateLabel= (argument) => {
       this.setState({candidateName: this.state.candidateList[argument.value]});
       this.setState({candidateID: argument.value});
       console.log("New Candidate Chosen: " + this.state.candidateName + " with ID: " + this.state.candidateID);
     }
    /* =========================================== ACCOUNT MANAGEMENT ==================================================================== */
-   /* Click button 'Get Accounts' => Async retrieve accounts via web3 utility*/
+   /* Called upon when the user requests the available accounts within the current node */
    getAccounts = async (e) => {
-     if( e !== undefined) {e.preventDefault();}
-     if(!this.state.accountLoaded){
-    console.log("Retrieving Accounts from Blockchain.");
-    await iniAccounts().then(() => { 
-      if(Accounts != undefined) {
-      this.setState({accountList : Accounts});
-      this.setState({accountLoaded: true});
-      var labels = new Array();
-      for(var i =0; i < Accounts.length; i++){
-        var x = {label : Accounts[i], "value" : i};
-        labels.push(x);
-      }
-      this.setState({accountLabels : labels});
-      console.log(this.state.accountLabels);
-    } else {
-      //@TODO: Error Pop-UP
-      console.log("You are not connected to a blockchain. ");
+      if( e !== undefined) {e.preventDefault();}
+          if(!this.state.accountLoaded){
+              console.log("Retrieving Accounts from Blockchain.");
+              await iniAccounts().then(() => { 
+                  if(Accounts != undefined) {
+                      this.setState({accountList : Accounts});
+                      this.setState({accountLoaded: true});
+                      var labels = new Array();
+                      for(var i =0; i < Accounts.length; i++){
+                          var x = {label : Accounts[i], "value" : i};
+                          labels.push(x);
+                     }
+                      this.setState({accountLabels : labels});
+                      console.log(this.state.accountLabels);
+                  } else {
+                      console.log("You are not connected to a blockchain. ");
+                  }
+             });
+          }
     }
-    });
-  }
-}
-  /* NOT IN USE */
-   displayAccountlist = () => {
-    if(this.state.accountList != null) {
-      console.log("Displaying Account List" + this.state.accountList);
-      this.state.accountList.map((element, index) => {
-        console.log("next item: " + element);
-        return(<li><a>{element}</a></li>)
-    });
-  } else {
-    console.log("Account list loading..");
-      return(<li><a>Accounts are still loading..</a></li>);
-    }
-  }
-  /* New Account Address selected in dropdown => Change state variable */
+  
+  /* Called upon when the user changes the Invoker Account */
   handleAccountChange = (e) => {
     //e.preventDefault();
     this.setState({account: e.value});
@@ -154,10 +152,12 @@ class SubmitVoteForm extends Component {
     console.log("Account selected: " + this.state.accountList[e.value]);
   }
 /*=================================================== ZOKRATES FILE MANAGEMENT ===================================================================================== */
+/* 
+* Called upon when the user wishes to select a .ZOK
+* file for compilation.
+*/
 getZokFile = (event) => {
-  console.log("Get Zok File caled");
   const file = event.target.files[0];
-  //console.log('files: ' + file);
   const reader = new FileReader();
   reader.readAsText(file);
   reader.addEventListener('load', (e) => {
@@ -166,19 +166,26 @@ getZokFile = (event) => {
     this.setState({zokFile: buffer.toString()/*CHANGED*/});
   });
 }
+/* 
+* Called upon when the user wishes to compile a selected .ZOK
+* file 
+*/
 compileZok = (e) => {
   e.preventDefault();
   if(zkProvider !== undefined){
   this.setState({membershipGenerator: zkProvider.compile(this.state.zokFile)});
   this.setState({fileCompiled: true});
-  console.log("artifact compiled: " + this.state.membershipGenerator);
+  console.log("ZK-Circuit compiled successfully. ")
   } else {
     iniZokrates();
     console.log("Zokrates hasn't initialized yet.");
   }
 }
+/* 
+* Called upon when the user attempts to load the proving key 
+* for proof generation
+*/
 getProvingKey = (event) => {
-  console.log("Get Proving Key caled");
   const file = event.target.files[0];
   //console.log('files: ' + file);
   const reader = new FileReader();
@@ -189,15 +196,9 @@ getProvingKey = (event) => {
     this.setState({provingKey: buffer});
   });
 }
-findKey = (element, merkleArray) => {
-for(var i =0; i < merkleArray.length; i++){
-  if(element== merkleArray[i]){
-    console.log("Hash produced correct result. Recurring.");
-    return i;
-  }
-}
-return -1;
-}
+/* 
+* Called upon when the user tries to generate a proof of membership
+*/
 generateProof = async (e) => {
   e.preventDefault();
   if(zkProvider !== undefined){
@@ -226,75 +227,62 @@ generateProof = async (e) => {
        /* Explicitly convert the general types because javascript sucks lol */
        var merkleRoot = result.mkRoot;
        var offset = firstLayerSize-1;
-       console.log("offset: " + offset);
        var siblingNodes = [];
        var dirSelector = [];
-       /* If we have 4 vote keys, taking..currentNodeIndex=0, targetIndex = 0, offset = 4, totalLength = 7 [false]*/
-       /* Second round: currentNodeIndex = 4, offset = 2, totalLength=7 [false, false]*/
-       /* Third Round: currentNodeIndex = 6 => END */
+
+
        /* We iterate UPWARDS from each layer*/
-       console.log("initialIndex: " + currentNodeIndex);
        while(offset != 1 && currentNodeIndex > 0) { //Always a div of 2, when = 1 -> Reached MK 
-         console.log("currentNode < merkleLength :" + currentNodeIndex + "<" +  merkleArray.length)
-        var siblingIndex;
-        //cn =
-        console.log("[DEBUG] currentNodeIndex: " + currentNodeIndex + "Offset: " + offset);
-        if(currentNodeIndex % 2 == 0){ 
-          dirSelector.push(false); 
-           //We are on the LEFT child, we want to add our RIGHT neighbour at index - 1 
-          siblingIndex = currentNodeIndex - 1;
-          console.log("[DEBUG] Adding index:" + siblingIndex);
-          siblingNodes.push(String(merkleArray[siblingIndex])); 
-          console.log("[DEBUG] Merkle Node: " + merkleArray[siblingIndex] + "added to sibling nodes");
-          currentNodeIndex = (currentNodeIndex/2) - 1;
-        } else { 
-          // We are on the RIGHT child, hence we are the SECOND argument in Hash(x,y) we want to add our neighbour that is on the index - 1
-          dirSelector.push(true); 
-          siblingIndex = currentNodeIndex + 1;
-          // Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. 
-         // currentNodeIndex = currentNodeIndex - offset + 1;
-          console.log("[DEBUG] Adding index:" + siblingIndex);
-          siblingNodes.push(String(merkleArray[siblingIndex])); 
-          console.log("[DEBUG] Merkle Node: " + merkleArray[siblingIndex] + "added to sibling nodes"); 
-          currentNodeIndex = Math.floor(currentNodeIndex/2);
-        }
-        //cn = 1 + 4 = 5 (Layer 2, index 1)
-        offset = offset / 2;
+          var siblingIndex;
+          if(currentNodeIndex % 2 == 0){ 
+              dirSelector.push(false); 
+              //We are on the LEFT child, we want to add our RIGHT neighbour at index - 1 
+              siblingIndex = currentNodeIndex - 1;
+              siblingNodes.push(String(merkleArray[siblingIndex])); 
+              currentNodeIndex = (currentNodeIndex/2) - 1;
+          } else { 
+              // We are on the RIGHT child, hence we are the SECOND argument in Hash(x,y) we want to add our neighbour that is on the index - 1
+              dirSelector.push(true); 
+              siblingIndex = currentNodeIndex + 1;
+              // Field values must be converted to string in order for ZOKRATES Circuit to parse it without overflow. 
+              siblingNodes.push(String(merkleArray[siblingIndex])); 
+              currentNodeIndex = Math.floor(currentNodeIndex/2);
+          }
+          offset = offset / 2;
        }  
-       console.log("Your direction selector: " + dirSelector + "\n Your sibling nodes: " + siblingNodes);// DEBUG
+      /*================================================= PROOF OF MEMBERSHIP GENERATION ========================================================*/ 
        console.log("Computing a witness and then generating a proof of membership for you.");
+
       initialize().then((zkProvider) => {
-       console.log("MembershipTest(" + this.state.secretKey + ", " + this.state.nullifier + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
-      const {witness, computationResult} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.nullifier, merkleRoot, dirSelector, siblingNodes]);
-     //console.log("Your witness result: " + witness); DEBUG
-      this.setState({generatedWitness: witness});
-      console.log("End of Witness Conduct \n");
+          console.log("MembershipTest(" + this.state.secretKey + ", " + this.state.nullifier + ", " + merkleRoot + ", " + dirSelector + "," + siblingNodes);
+          const {witness, _} = zkProvider.computeWitness(this.state.membershipGenerator, [this.state.secretKey, this.state.nullifier, merkleRoot, dirSelector, siblingNodes]);
+          this.setState({generatedWitness: witness});
+          console.log("End of Witness Conduct \n");
       }).catch((err) => {
           console.log("Error caught during witness computation: " + err);
           this.setState({generatedWitness: null});
       }).finally(() => {
-        console.log("Async Witness Op concluded.");
-                /* Only after witness computation, begin proof generation*/
-                if(this.state.generatedWitness != null){
-                        initialize().then((zkProvider) => {
-                        console.log("Conducting Proof Generation")
-                        //console.log("Your program: " + this.state.membershipGenerator.program); DEBUG
-                        let localProof = zkProvider.generateProof(this.state.membershipGenerator.program, this.state.generatedWitness, this.state.provingKey);
-                        console.log("Proof Generated: " + localProof);
-                        this.setState({proof:localProof}); 
-                        }).catch((err) => {
-                        console.log("Error during Proof Generation: " + err);
-                        }).finally( () => {
-                        this.setState({proofGenerated: true});
-                        console.log("Conduct Finished.")
-                      });
-    } else {
-      console.log("You provided an invalid combination of secretKey and VoteKey, thus the proof could not be generated.");
-    }
-  });
+          console.log("Async Witness Op concluded.");
+          /* Only after witness computation, begin proof generation*/
+          if(this.state.generatedWitness != null){
+                initialize().then((zkProvider) => {
+                    console.log("Conducting Proof Generation")
+                    let localProof = zkProvider.generateProof(this.state.membershipGenerator.program, this.state.generatedWitness, this.state.provingKey);
+                    console.log("Proof Generated successfully. ");
+                    this.setState({proof:localProof}); 
+                }).catch((err) => {
+                    console.log("Error during Proof Generation: " + err);
+                }).finally( () => {
+                    this.setState({proofGenerated: true});
+                    console.log("Conduct Finished.")
+                });
+          } else {
+              console.log("You provided an invalid combination of secretKey and VoteKey, thus the proof could not be generated.");
+          }
+      });
+  }
 }
-}
-/* =====================================================================================================================================================================*/
+/*================================== COMPONENT RENDER ============================================*/ 
     render () {
         return (
             <div>

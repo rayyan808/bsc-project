@@ -1,18 +1,13 @@
 import './assets/css/Login-Form-Dark.css';
 import './assets/css/styles.css';
 import {Component} from 'react';
-import {useRoutes} from './routes';
-import { BrowserRouter, Link, Switch, Route, Router} from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import {Button} from 'react-bootstrap';
 import Select from 'react-select';
-import * as paillierBigint from 'paillier-bigint';
-import VoteKeyGeneratorForm from './components/VoteKeyGeneratorForm';
-import {Election, Accounts, web3, iniAccounts} from './components/web3_utility';
-import {iniZokrates, zkProvider} from './components/zkProvider';
-const Abi = require ('./assets/contracts/electionAbi.json');
-const ESSerializer = require('esserializer');
-var JSONbig = require('json-bigint');
+import {Election, Accounts, iniAccounts} from './components/web3_utility';
+import {iniZokrates} from './components/zkProvider';
 class App extends Component {
+  /*=================== INITIALIZATION & BINDING =========================*/ 
   constructor(props){
     super(props);
     this.state = {
@@ -21,6 +16,7 @@ class App extends Component {
         candidateB: "Kim Jong-Un",
         account: null,
         accountSelected: false,
+        accountToAuthorize: null,
         accountList: [],
         accountLabels: [{}],
         publicKeyN: "",
@@ -28,85 +24,38 @@ class App extends Component {
         privateKey: null,
         privateKeyFile: {}
       };
+      /* 
+      * Defining the binders within the constructors assure one-to-one mapping per instance
+      * and provides better performance
+      */
       this.handleChange = this.handleChange.bind(this);
       this.conductElection = this.conductElection.bind(this);
-      this.generateKeyPair = this.generateKeyPair.bind(this);
-      //this.useRoutes = this.useRoutes.bind(this);
+      this.authorizeAccount = this.authorizeAccount.bind(this);
+      this.handleAuthorizeAccountChange = this.handleAuthorizeAccountChange.bind(this);
       iniAccounts();
-    iniZokrates();
+      iniZokrates();
     }
-// 
-   handleChange = (e) => {
-    const val  = e.target.value;
-    this.setState({
-      [e.target.name]: val
-    });
-    console.log('State: ' + e.target.name + ' Value:' + val);
-    };
-    /* <==================================== PAILLER ENCRYPTION  ==========================================================> */
-    generateKeyPair = async (e) => {
-      e.preventDefault();
-      const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(1024)
-      const privateKeyJSON = JSONbig.stringify(privateKey); const publicKeyJSON = JSONbig.stringify(publicKey);
-      //const y = new paillierBigint.PublicKey(publicKey.n, publicKey.g);
-      const x = new paillierBigint.PrivateKey(privateKey.lambda,privateKey.mu, publicKey);
-      //let privateKeyStore = ESSerializer.serialize(x);
-      //When owner decrypts and finds out the solution, he sends a zero-knowledge proof that hisResult == the actual result
-      //def main(private secretKey, )
-      this.setState({publicKeyN: publicKey.n, publicKeyG : publicKey.g, 
-        privateKey: privateKeyJSON,   
-        keyGenerated: true});
-
-      console.log(this.state.publicKeyG);
-      this.generateDownload(privateKeyJSON); //Allow the owner to download their private key for later usage (decrypt )
-    }
-    paillierTest = async () => {
-      // (asynchronous) creation of a random private, public key pair for the Paillier cryptosystem
-      const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(2048)
-    
-      // Optionally, you can create your public/private keys from known parameters
-      // const publicKey = new paillierBigint.PublicKey(n, g)
-      // const privateKey = new paillierBigint.PrivateKey(lambda, mu, publicKey)
-    
-      const m1 = 12345678901234567890n
-      const m2 = 5n
-    
-      // encryption/decryption
-      const c1 = publicKey.encrypt(m1)
-      console.log(privateKey.decrypt(c1)) // 12345678901234567890n
-    
-      // homomorphic addition of two ciphertexts (encrypted numbers)
-      const c2 = publicKey.encrypt(m2)
-      const encryptedSum = publicKey.addition(c1, c2)
-      console.log(privateKey.decrypt(encryptedSum)) // m1 + m2 = 12345678901234567895n
-    
-      // multiplication by k
-      const k = 10n
-      const encryptedMul = publicKey.multiply(c1, k)
-      console.log(privateKey.decrypt(encryptedMul)) // k · m1 = 123456789012345678900n
-    }
-    /* ================================================ FILE MANAGEMENT     =================================================> */
-    generateDownload = (json) => {
-      const blob=new Blob([json],{type:'application/json'})
-      // If we are replacing a previously generated file we need to
-      // manually revoke the object URL to avoid memory leaks.
-      if (this.state.privateKeyURL !== null) {
-        window.URL.revokeObjectURL(this.state.privateKeyURL);
-      }
-  
-      this.setState({privateKeyURL: window.URL.createObjectURL(blob)});
-
+    /* 
+    * Generic handling function called upon when the user updates a selection
+    */
+    handleChange = (e) => {
+      const val  = e.target.value;
+      this.setState({
+        [e.target.name]: val
+      });
+      console.log('State: ' + e.target.name + ' Value:' + val);
     };
     /* ================================================ SMART CONTRACT CALL =================================================> */
+    /* 
+    * Called upon when the user invokes conduct election with appropiate parameters selected.
+    */
    conductElection = async (e) => {
-    e.preventDefault();
-    if(this.state.electionName !== undefined && this.state.candidateA !== undefined && this.state.candidateB !== null && this.state.publicKey !== null){
-    //await this.iniDApp();
-    console.log("Sending request to Blockchain network \n");
-    console.log("Account initialized: " + Accounts[0]);
-    console.log(this.state.electionName +  "\n");
+      e.preventDefault();
+      if(this.state.electionName !== undefined && this.state.candidateA !== undefined && this.state.candidateB !== null && this.state.publicKey !== null){
+     
+      console.log("Sending request to Blockchain network \n");
 
-    console.log("Invoking conductElection on the blockchain.")
+    console.log("Invoking election: " + this.state.electionName + " on the blockchain.")
     await Election.methods
       .conductElection(this.state.electionName, this.state.candidateA, this.state.candidateB)
       .send({ from: Accounts[this.state.account], gas: 4000000 }).then(async (receipt) => {
@@ -117,8 +66,21 @@ class App extends Component {
       console.log("Enter values for Election Name & Candidates");
     }
   }
+  /* 
+  * Called upon when a user authorizes a node for Vote-Key submission
+  */
+ authorizeAccount = async (e) => {
+   e.preventDefault();
+   await Election.methods
+      .authorize(Accounts[this.state.accountToAuthorize])
+      .send({ from: Accounts[this.state.account], gas: 4000000 }).then(async (receipt) => {
+        console.log(receipt);
+      });
+ }
      /* =========================================== ACCOUNT MANAGEMENT ==================================================================== */
-   /* Click button 'Get Accounts' => Async retrieve accounts via web3 utility*/
+   /* 
+   * Retrieve the accounts available within the current node (Within a local environment, this is your test-RPC or Ganache Accounts)
+   */
    getAccounts = async (e) => {
     if( e !== undefined) {e.preventDefault();}
     if(!this.state.accountLoaded){
@@ -140,14 +102,20 @@ class App extends Component {
    });
  }
 }
- /* New Account Address selected in dropdown => Change state variable */
+ /* Called upon when the user selects a new Invoker Account */
  handleAccountChange = (e) => {
    //e.preventDefault();
    this.setState({account: e.value});
    this.setState({accountSelected: true});
    console.log("Account selected: " + this.state.accountList[e.value]);
  }
- /* ========================================================================================================================================= */
+ /* Called upon when the user selects a new account to Authorize */
+ handleAuthorizeAccountChange = (e) => {
+  //e.preventDefault();
+  this.setState({accountToAuthorize: e.value});
+  console.log("Account to authorize selected: " + this.state.accountList[e.value]);
+}
+/*================================== COMPONENT RENDER ============================================*/ 
   render() {
     
     return (
@@ -183,7 +151,7 @@ class App extends Component {
         <input className="form-control" onChange={this.handleChange} value = {this.state.candidateA} type="text" placeholder="Candidate A" name="candidateA" id="candidateA" />
         <input className="form-control" onChange={this.handleChange} value={this.state.candidateB} type="text" placeholder="Candidate B" name="candidateB" id="candidateB" /></div>
         <div className="mb-3">
-        <div><p>Select an Account: </p> 
+        <div><p>Delegate an Invoker Account: </p> 
                 <Select  label="Select an Account"
                         theme={(theme) => ({
                                 ...theme,
@@ -200,11 +168,35 @@ class App extends Component {
 
             </div>
             </div>
-      <div className="mb-3"><Button variant="btn btn-outline-success d-block w-100" onClick={this.conductElection} disabled={this.state.account == null}>{this.state.account == null ? 'Select an Account first':'Conduct Election'}</Button></div><a className="forgot" href="#">Rayyan Jafri</a>
+      <div className="mb-3"><Button variant="btn btn-outline-success d-block w-100" onClick={this.conductElection} disabled={this.state.account == null}>{this.state.account == null ? 'Select an Invoker Account':'Conduct Election'}</Button></div>
                  
-      <div className="mb-3"></div>      
+      <div className="mb-3"/>  
+      <div className="mb-3">  
       <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.getAccounts}>{this.state.accountLoaded ? 'Refresh Accounts' : 'Get Accounts'}</Button>
-                      
+      <div className="mb-3"></div>
+      <div className="mb-3"></div>
+      <div className="mb-3">
+        <div><p>Select an account to authorize: </p> 
+                <Select  name="accountToAuthorize" label="Select an Account"
+                        theme={(theme) => ({
+                                ...theme,
+                                borderRadius: 0,
+                                colors: {
+                                ...theme.colors,
+                                text: 'orangered',
+                                neutral0: 'black',
+                                primary25: 'hotpink',
+                                primary: 'black',
+                              },
+                        })}
+                        options={this.state.accountLabels} onChange={this.handleAuthorizeAccountChange}/>
+
+            </div>
+            </div>  
+        <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.authorizeAccount}disabled={this.state.account == null}>{this.state.accountLoaded ? 'Authorize Node' : 'Select Owner as Invoker Account'}</Button>
+        </div>
+         
+    <a className="forgot" href="#">Rayyan Jafri</a>
     </form>
   </section>
   <transactionresult />
@@ -213,8 +205,3 @@ class App extends Component {
   }
 }
 export default App;
-/*  <div className="mb-3">
-      <Button variant="btn btn-outline-primary d-block w-100" disabled={this.state.publicKey == null}onClick={() => {navigator.clipboard.writeText(this.state.publicKey)}}>Copy Public Key</Button> </div>
-      <Button variant="btn btn-outline-danger d-block w-100" disabled={this.state.privateKey == null} onClick={() => {navigator.clipboard.writeText(this.state.privateKey)}}>Copy Private Key</Button> 
-      <div className="mb-3"></div>
-      <Button variant="btn btn-outline-danger d-block w-100" type="sm" onClick={this.generateKeyPair}>{this.state.keyGenerated ? 'Get new key pair' : 'Generate Keypair'}</Button> */

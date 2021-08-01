@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom';
 import {initialize, metadata } from 'zokrates-js';
 import Select from 'react-select';
 class VoteKeyGeneratorForm extends Component {
+  /*==================================== INITIALIZATION & BINDING ===============================================*/ 
     constructor(props){
         super(props);
         this.state = {
@@ -51,17 +52,18 @@ class VoteKeyGeneratorForm extends Component {
             this.state.accountLabels = labels;
             console.log(this.state.accountLabels);
           } else {
-            //@TODO: Error Pop-Up
             console.log("You are not connected to a blockchain. ");
           }
           });
           await iniZokrates();
-       // console.log("Bootup accountlist: " + Accounts)
         }
         getAccounts = async (e) => {
           e.preventDefault();
           iniAccounts();
         }
+    /* 
+    * Generic handling function called upon when the user updates a selection
+    */
    handleChange = (e) => {
     const val  = e.target.value;
     console.log("Target Name: " + e.target.name + "Target Value: " + e.target.value)
@@ -70,51 +72,38 @@ class VoteKeyGeneratorForm extends Component {
     });
     console.log('State: ' + e.target.name + ' Value:' + val);
     };
+
+
+    /*============================================ VOTE KEY MANAGEMENT ==========================================*/ 
+
+
+    /* 
+    * Called upon when the user wishes to hash their secretKey and Unique Identifier.
+    *  Utilizes the Zokrates.JS library and the custom-made MiMC ZIR Circuit  
+    */
     generateVoteKey = (e) => {
       e.preventDefault();
-      console.log(this.state.secretKey);
-      console.log(this.state.hashBinary);
-      const sk = this.state.secretKey;
-      let vk;
       initialize().then((zkProvider) => {
         
-        let hashABI = {
-          "inputs": [
-            {
-              "name": "alpha",
-              "public": true,
-              "type": "array",
-              "components": {
-                "size": 2,
-                "type": "field"
-              }
-            }
-          ],
-          "outputs": [
-            {
-              "type": "field"
-            }
-          ]
-        };
-        //@TODO: Convert hashABI into direct JSON read
         console.log("Computing Witness fo")
         console.log("COMPILER ZOK-JS: " + metadata.version)
-        //let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,this.state.identifier]]); //PRODUCTION
-        let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,"0"]]); //DEBUG
+        let computationResult = zkProvider.computeWitness(this.state.voteKeyGenerator, [[this.state.secretKey,this.state.identifier]]); //PRODUCTION
+        /* Clean up and extract the VoteKey from the Zokrates RAW Output */
         var rawString = computationResult.output.trim();
-        console.log("raw string trimmed: " + rawString);
-        rawString = rawString.replace("[", "");rawString = rawString.replace("]", ""); 
-        console.log("raw string trimmed2: " + rawString); rawString = rawString.replaceAll("\"", ""); rawString = rawString.replaceAll("\"", ""); console.log("raw string trimmed3: " + rawString); 
-        rawString = rawString.replaceAll("\n", ""); console.log("raw string trimmed4: " + rawString); 
-        //String is parsed as BigInt on the chain, limited to 256-bits
+        rawString = rawString.replace("[", "");
+        rawString = rawString.replace("]", ""); 
+        rawString = rawString.replaceAll("\"", ""); 
+        rawString = rawString.replaceAll("\"", "");
+        rawString = rawString.replaceAll("\n", "");
+        //NOTE: String is parsed as BigInt on-chain, limited to 256-bits
         this.setState({voteKey : rawString});
         this.setState({witness: computationResult.witness });
-      console.log("Your vote key is: " + this.state.voteKey);
+        console.log("Your vote key is: " + this.state.voteKey);
       });
- //    let vk = zkProvider.computeWitness(this.state.hashBinary, th[0])is.state.secretKey);
-    // let vk = MiMCHash(sk);
 
     }
+
+
     /** 
      * 
      * @param {event object recieved from onClick} e 
@@ -133,6 +122,27 @@ class VoteKeyGeneratorForm extends Component {
        
           console.log("End of Conduct \n");
     }
+
+
+    displayGenerateVoteKey = () => {
+      if(this.state.voteKeyGenerator != null){
+        return (<div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.generateVoteKey}>Generate Vote Key</button></div>)
+      }
+    }
+
+
+    displaySubmitVoteKey = () => {
+      if(this.state.voteKey != null){
+       return(<div className="mb-3"><a>Your vote key: {this.state.voteKey} </a><button className="btn btn-primary d-block w-100" type="submit"  onClick= {this.submitVoteKey}>Submit Vote Key</button></div>)
+      }
+    }
+
+
+    /*============================================ FILE MANAGEMENT ==================================*/ 
+    /* 
+    * Called upon when the user wishes to select a .ZOK
+    * file for compilation.
+    */
     getZokFile = (event) => {
       console.log("Get Zok File caled");
       const file = event.target.files[0];
@@ -146,6 +156,11 @@ class VoteKeyGeneratorForm extends Component {
         this.setState({zokFile: buffer.toString()/*CHANGED*/});
       });
     }
+
+    /* 
+    * Called upon when the user wishes to compile a selected .ZOK
+    * file 
+    */
     compileZok = (e) => {
       e.preventDefault();
       if(zkProvider !== undefined){
@@ -157,6 +172,37 @@ class VoteKeyGeneratorForm extends Component {
         console.log("Zokrates hasn't initialized yet.");
       }
     }
+
+
+    /*================================== ACCOUNT MANAGEMENT =================================*/
+    /* 
+    *Called upon when the user changes the Invoker Account 
+    */
+    handleAccountChange = (e) => {
+      this.setState({account: e.value});
+      console.log("Account selected: " + this.state.accountList[e.value]);
+  }
+
+  /* 
+  * Called upon when the user manually retrieves the available node accounts
+  */
+  displayAccountlist = (e) => {
+    e.preventDefault();
+    if(this.state.accountList != null) {
+      console.log("Displaying Account List");
+      this.state.accountList.map((element, index) => {
+        console.log("Account found: " + element);
+        return(<li><a>{element}</a></li>)
+    });
+  } else {
+    console.log("Account list loading..");
+      return(<li><a>Accounts are still loading..</a></li>);
+  }
+  }
+
+
+  /*================================== COMPONENT RENDER ============================================*/ 
+
     render() {
             return (
               <div>
@@ -191,7 +237,6 @@ class VoteKeyGeneratorForm extends Component {
 
                     <div className="mb-3"><input className="form-control" type="text" id="identifier" name="identifier" onChange = {this.handleChange} placeholder="Enter an Identifier" /></div>
                     <input type="file" id="fileGetter_Hash" onChange={this.getZokFile}></input>        
-                    {/*<input type="file" id="fileGetter_Hash" onChange={this.getHashBinary}></input> */ }
                     <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.compileZok}>Compile </button></div>
                     {this.displayGenerateVoteKey()}
                     {this.displaySubmitVoteKey()}
@@ -229,43 +274,8 @@ class VoteKeyGeneratorForm extends Component {
           console.log(receipt);
         });
       }
-      displayGenerateVoteKey = () => {
-        if(this.state.voteKeyGenerator != null){
-          return (<div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.generateVoteKey}>Generate Vote Key</button></div>)
-        }
-      }
-      displaySubmitVoteKey = () => {
-        if(this.state.voteKey != null){
-         return(<div className="mb-3"><a>Your vote key: {this.state.voteKey} </a><button className="btn btn-primary d-block w-100" type="submit"  onClick= {this.submitVoteKey}>Submit Vote Key</button></div>)
-        }
-      }
-      handleAccountChange = (e) => {
-          //e.preventDefault();
-          this.setState({account: e.value});
-          console.log("Account selected: " + this.state.accountList[e.value]);
-      }
-      displayAccountlist = () => {
-        if(this.state.accountList != null) {
-          console.log("Displaying Account List" + this.state.accountList);
-          this.state.accountList.map((element, index) => {
-            console.log("next item: " + element);
-            return(<li><a>{element}</a></li>)
-           // return(<li><a onClick={this.handleChange} name="account" value={this.state.account} key={element} id={index}>{element}</a></li>);
-        });
-      } else {
-        console.log("Account list loading..");
-          return(<li><a>Accounts are still loading..</a></li>);
-      }
-      }
-     /* displayAccountlist = () => {
-          getAccounts((resolve, reject) => {return(<li>Loading Accounts! {resolve()}{reject()}</li>);  }).then((accounts) => {accounts.map((element, index) => {
-            return(<li onClick={this.handleChange} name="account" value={this.state.account} key={element} id={index}>{element}</li>);
-          })}).catch((err) => { return(<li onClick={this.displayAccountlist}> {err} Accounts could not be loaded (Is your blockchain running?</li>); });*/
-      /*   else {
-          return(<li> There was an error retrieving the accounts. (web3.getAccounts is undefined) 
-          <div className="mb-3"><button className="btn btn-primary d-block w-100" type="submit" onClick= {this.getAccounts}>Get Accounts</button></div></li>);
-        }
-       } */
+      
+     
     
     
       //***************** BUGGY ************************ */

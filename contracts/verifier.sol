@@ -561,7 +561,7 @@ contract Verifier {
         Pairing.G2Point b;
         Pairing.G1Point c;
     }
-    constructor () public {
+    constructor ()  {
 
     }
     function verifyingKey() pure internal returns (VerifyingKey memory vk) {

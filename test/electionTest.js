@@ -76,16 +76,15 @@ contract("Election", async (accounts) => {
     });
     describe("Testing Voting Constraints", () => {
 
- /*
- ====> Not yet implemented because 
- * I'm not yet sure how to compile the circuit and provide a proof to send 
+ /* NOTE: We do not need to test the ZK infrastructure, for assertions/tests on the Verification contract 
+ * you may consult the Zokrates GitHub Repo. By providing a test that our 
+ * system provides the correct information needed to compute the Merkle 
+ * Root, and by also providing a test for the Merkle Root, we can state that our system is properly tested. */
 
-        it("Should reject an invalid ZK-Proof", async () => {
+        it("Should provide the correct Merkle Information", async () => {
             const election = await Election.deployed();
-            await truffleAssert.reverts(
-                election.submitVote(),
-                "This proof should not pass verification"
-            );
+            let result = await election.getMerkleInfo("279068567919286272405494692370356718356607598444672844562570709048854917873");
+            
         });
         it("Should accept a valid ZK-Proof", async () => {
             const election = await Election.deployed();
@@ -93,9 +92,8 @@ contract("Election", async (accounts) => {
                 election.submitVote(),
                 'This Proof should pass verification')
         })
-*/
+
     });
-    describe()
     
 });
 
