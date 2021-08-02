@@ -1,5 +1,9 @@
-ZERO-KNOWLEDGE VOTING SYSTEM USING TRUFFLE, ZOKRATES.JS, GANACHE & REACT-JS 
+THE FIRST ZERO-KNOWLEDGE & TRULY DECENTRALIZED VOTING SYSTEM USING ETHEREUM, TRUFFLE, ZOKRATES.JS & REACT-JS 
 
+This proposal is showcasing the ability to deploy a voting system on blockchain with minimal computational overhead such that is becomes browser-friendly. This is mainly done by scrapping traditional additive homomorphic voting schemes in favour of a zero-knowledge SNARK
+proof of membership. The lightweight library of Zokrates-JS allows us to use an ES6 module within our react script to perform zero-knowledge operations. This is coupled with a Web3 library to communicate the zero-knowledge proofs with the Election Contract. Unlike other proposals, this project doesn't require a Trusted Authority for Tally decryption as it exploits the disassociation between a voter and their SNARK-proof (Vote Ballot) to pass the vote value whilst utilizing Unique Identifiers to provide self-verifiability of vote process completion. 
+
+"True Decentralized voting using blockchain and zero-knowledge proofs"- Rayyan Jafri, Faculty of Science & Engineering, The University of Groningen, The Netherlands
 
 HOW TO INSTALL:
 Blockchain Components:
@@ -16,9 +20,9 @@ DAPP
 HOW TO RUN:
 
 Blockchain:
-`ganache-cli --port 7454` - Run your local blockchain, we used ganache. 
+`ganache-cli` - Run your local blockchain, we used ganache. 
 
-The port specifications are configured within the `truffle-config.js` file in the project root directory. We explicitly define `7454` as ganache uses `8454` be default. This may be changed.
+The port specifications are configured within the `truffle-config.js` file in the project root directory. 
 
 `truffle deploy` - Deploy the ZK Voter and it's libraries to the aforementioned blockchain.
 
@@ -31,22 +35,33 @@ Prerequisite: We have not added a config file that may be read yet, so you must 
 `yarn start` - Start up the DApp
 
 HOW TO TEST:
+==> Blockchain Component
+
 `truffle develop` - Enter a development environment 
 Run `truffle test` from the project root directory. This will spool a local development blockchain for you and conduct the tests which can be evaluated at `/test/electionTest.js/`
 
+==> Zero-Knowledge Circuits
+
+`cargo test` - Run a cargo test 
+
+`./snarks/test/` - Test Directory
+
+====> DEVELOPER NOTES <======
+
 Assets: Due to a bug in Zokrates-JS I found (see: https://github.com/Zokrates/ZoKrates/issues/909), we must unfortunately locate and compile the zero-knowlege circuits ourselves instead of directly loading pre-compiled binaries. All the required assets are located within the DApp/snarks/client-side.
 
-Vote-Key Generation: You need to open the ZK circuit at: `/dapp/snarks/client-side/combinedCircuit.zok`
+Vote-Key Generation: The Vote-Key is a hash combination of your Secret Key and your chosen Unique Identifier. To compute a hash, you must open the ZK circuit at: `/snarks/client-side/hashFunction.zok`
 
-Submitting Vote/Proof Generation: You need to open the ZK circuit at `membershipTest.zok`.
+Submitting Vote/Proof Generation: In order to prove your membership and generate a proof, you need to open the ZK circuit at: `/snarks/client-side/membershipTest.zok`.
 
 Once Zokrates-JS includes the PR from issue 909 into their next release, compilation can be disregarded in favour of pre-compile binaries. Though self-compilation is exhausting, it does show the true transparency of zero-knowledge proofs, and can provide valuable learning insight to users on the functionality within the source-code.
 
-In-Progress:
-NOTE: Authorize address is disabled for debugging, the final release will contain the ability to authorize node addresses when conducting the election. 
+Future additions (If I find the the time, feel free to create a PR):
 BONUS: >>> Improve the ZK circuit from 3 layers to dynamic layers using Zokrates Generic Functions <<<<
 BONUS: >>> Upgrade to Truffle Beta and utilize Revert Messages for better User clarification on incorrect method calls <<<
-BONUS: >>> Improve UI <<<
+BONUS: >>> Make UI Responsive <<<
+BONUS: >>> Add Error UI Pop-Ups <<<
+
 Rough work log:
 - Studied Zokrates Docs
 - Studied EVM Docs (Skimmed through, more like)
