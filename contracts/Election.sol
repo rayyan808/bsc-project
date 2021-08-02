@@ -200,5 +200,5 @@ contract Election is Verifier {
     */
     function getTally() public view returns(Candidate[] memory candidateResult){
         return candidates;
-    }
+    } 
 }

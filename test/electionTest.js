@@ -3,6 +3,7 @@ require('chai')
     .use(require('chai-as-promised'))
     .should();
 
+const { assert } = require('chai');
 const truffleAssert = require('truffle-assertions');
 /*const initialize  = require('zokrates-js');
 let compiler, computeWitness, zkProvider, generateProof, verifier;
@@ -27,6 +28,12 @@ contract("Election", async (accounts) => {
                 
             A.toString().should.equal("Trump");
             B.toString().should.equal("Kim Jong-Un");
+        });
+        it("Gets candidate information correctly", async () => {
+            const election = await Election.deployed();
+            let result = await election.getTally();
+            assert.equal(result[0].name, "Trump");
+            assert.equal(result[1].name, "Kim Jong-Un");
         });
         it("Stores correct Election name", async () => {
 
@@ -65,7 +72,8 @@ contract("Election", async (accounts) => {
                 result.toString().should.equal(voteKeys[i]);
             }
         });
-
+    });
+    describe("Testing Merkle Tree", async () => { 
         it("Calculates correct Merkle Root", async () => {
 
             const election = await Election.deployed();
@@ -74,26 +82,13 @@ contract("Election", async (accounts) => {
         
         });
     });
-    describe("Testing Voting Constraints", () => {
 
- /* NOTE: We do not need to test the ZK infrastructure, for assertions/tests on the Verification contract 
- * you may consult the Zokrates GitHub Repo. By providing a test that our 
- * system provides the correct information needed to compute the Merkle 
- * Root, and by also providing a test for the Merkle Root, we can state that our system is properly tested. */
+ /* NOTE: I could not find a method to test the Verifier contract within the ZK infrastructure, for assertions/tests on the Verification contract 
+ * you may consult the Zokrates GitHub Repo. A Chai test would require the raw binary outputs of the 
+ Proof (A Proof on it's own is a few hundred MBs, supplying it within the parameters seemed chaotic. Regardless, we have provided tests that our 
+ * system provides the correct information needed by a client for proper conduct. The Zero-Knowledge tests can be found in zeroKnowledge.js  */
 
-        it("Should provide the correct Merkle Information", async () => {
-            const election = await Election.deployed();
-            let result = await election.getMerkleInfo("279068567919286272405494692370356718356607598444672844562570709048854917873");
-            
-        });
-        it("Should accept a valid ZK-Proof", async () => {
-            const election = await Election.deployed();
-            await truffleAssert.passes(
-                election.submitVote(),
-                'This Proof should pass verification')
-        })
 
-    });
     
 });
 

@@ -1,9 +1,0 @@
-import "./mimc-encryption.zok" as hash
-/* All operations using field elements are mod p where p is the prime field,
-So we don't need to perform a modulo each iteration*/
-def main(field[2] alpha)->(field):
-  field r = 0
-  for field i in 0..2 do
-    r = r + alpha[i] + hash(alpha[i], r)
-  endfor
-  return r

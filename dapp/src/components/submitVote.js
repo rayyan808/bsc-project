@@ -91,7 +91,7 @@ class SubmitVoteForm extends Component {
     if(this.state.accountLoaded && this.state.account != null){
       /* Retrieve Candidate List from Blockchain */
       console.log("Sending request to Blockchain..");
-      await Election.methods.getCandidates()
+      await Election.methods.getTally()
       .call({ from: await this.state.accountList[this.state.account], gas: 4000000 })
       .then((receipt) => {
           console.log("Candidate List recieved: " + receipt);
